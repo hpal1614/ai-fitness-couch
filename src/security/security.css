@@ -1,0 +1,708 @@
+/* =====================================================================================
+   🍎 APPLE-INSPIRED SECURITY UI - BEAUTIFUL & CLEAN
+   =====================================================================================
+   FILE LOCATION: src/security/security.css
+   Created by Himanshu (himanshu1614)
+   Purpose: Apple-style security components with SF Pro styling
+*/
+
+/* =====================================================================================
+   🎨 CSS RESET & APPLE TYPOGRAPHY
+   ===================================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+.security-ui {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* =====================================================================================
+   🌫️ APPLE GLASSMORPHISM BACKDROP
+   ===================================================================================== */
+
+.fixed {
+  position: fixed;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.bg-black {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.bg-opacity-50 {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+/* =====================================================================================
+   🍎 APPLE CARD DESIGN
+   ===================================================================================== */
+
+.bg-white {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 32px 64px rgba(0, 0, 0, 0.12),
+    0 0 0 0.5px rgba(255, 255, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.rounded-2xl {
+  border-radius: 20px;
+}
+
+.max-w-md {
+  max-width: 28rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.p-6 {
+  padding: 2rem;
+}
+
+.relative {
+  position: relative;
+}
+
+/* =====================================================================================
+   🎯 APPLE HEADER STYLING
+   ===================================================================================== */
+
+.text-center {
+  text-align: center;
+}
+
+.mb-6 {
+  margin-bottom: 2rem;
+}
+
+.text-4xl {
+  font-size: 2.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.text-2xl {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.022em;
+  line-height: 1.2;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-gray-800 {
+  color: #1d1d1f;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.text-gray-600 {
+  color: #86868b;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* =====================================================================================
+   🍎 APPLE TAB DESIGN (SEGMENTED CONTROL)
+   ===================================================================================== */
+
+.bg-gray-100 {
+  background: #f2f2f7;
+  border-radius: 10px;
+  padding: 2px;
+}
+
+.rounded-lg {
+  border-radius: 8px;
+}
+
+.p-1 {
+  padding: 0.25rem;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.rounded-md {
+  border-radius: 6px;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.transition-colors {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Active tab (Apple blue) */
+.bg-white.text-gray-900.shadow {
+  background: #ffffff;
+  color: #1d1d1f;
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+}
+
+/* Inactive tab */
+.text-gray-600.hover\:text-gray-900 {
+  color: #86868b;
+  cursor: pointer;
+}
+
+.text-gray-600.hover\:text-gray-900:hover {
+  color: #1d1d1f;
+}
+
+/* =====================================================================================
+   📝 APPLE FORM INPUTS
+   ===================================================================================== */
+
+.block {
+  display: block;
+}
+
+.text-gray-700 {
+  color: #1d1d1f;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.pl-10 {
+  padding-left: 2.5rem;
+}
+
+.pr-4 {
+  padding-right: 1rem;
+}
+
+.py-3 {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+.border {
+  border: 1.5px solid #d2d2d7;
+}
+
+.rounded-xl {
+  border-radius: 12px;
+}
+
+.focus\:ring-2 {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.focus\:ring-2:focus {
+  outline: none;
+  border-color: #007aff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.focus\:border-transparent:focus {
+  border-color: #007aff;
+}
+
+/* Input styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  background: #ffffff;
+  color: #1d1d1f;
+  font-size: 1rem;
+  font-weight: 400;
+  border: 1.5px solid #d2d2d7;
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  width: 100%;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #007aff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+textarea::placeholder {
+  color: #86868b;
+  font-weight: 400;
+}
+
+/* Error state */
+input.border-red-500,
+textarea.border-red-500 {
+  border-color: #ff3b30;
+  background: #fff5f5;
+}
+
+input.border-red-500:focus,
+textarea.border-red-500:focus {
+  border-color: #ff3b30;
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
+}
+
+/* =====================================================================================
+   🍎 APPLE BUTTONS
+   ===================================================================================== */
+
+button {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  cursor: pointer;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Primary Apple Blue Button */
+.bg-gradient-to-r.from-purple-500.to-pink-500 {
+  background: #007aff;
+  color: #ffffff;
+  padding: 0.875rem 1.5rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 
+    0 1px 3px rgba(0, 122, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.bg-gradient-to-r.from-purple-500.to-pink-500:hover {
+  background: #0056cc;
+  transform: translateY(-0.5px);
+  box-shadow: 
+    0 4px 12px rgba(0, 122, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.bg-gradient-to-r.from-purple-500.to-pink-500:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 3px rgba(0, 122, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Secondary Button */
+.bg-gray-100.text-gray-700 {
+  background: #f2f2f7;
+  color: #007aff;
+  padding: 0.875rem 1.5rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+}
+
+.bg-gray-100.text-gray-700:hover {
+  background: #e5e5ea;
+}
+
+/* Disabled state */
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* =====================================================================================
+   ⚠️ APPLE ALERTS & NOTIFICATIONS
+   ===================================================================================== */
+
+.bg-red-50 {
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-radius: 12px;
+}
+
+.border-red-200 {
+  border-color: #fed7d7;
+}
+
+.text-red-600 {
+  color: #ff3b30;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.bg-blue-50 {
+  background: #f0f9ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+}
+
+.border-blue-200 {
+  border-color: #bfdbfe;
+}
+
+.text-blue-800 {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.text-blue-700 {
+  color: #1d4ed8;
+}
+
+.text-blue-600 {
+  color: #007aff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.text-blue-600:hover {
+  text-decoration: underline;
+}
+
+/* =====================================================================================
+   🔐 SECURITY STATUS INDICATOR
+   ===================================================================================== */
+
+.bg-green-50 {
+  background: #f0fff4;
+  border: 1px solid #86efac;
+  border-radius: 12px;
+}
+
+.border-green-200 {
+  border-color: #86efac;
+}
+
+.text-green-800 {
+  color: #065f46;
+  font-weight: 600;
+}
+
+.text-green-700 {
+  color: #047857;
+}
+
+/* =====================================================================================
+   🎨 SPACING & LAYOUT
+   ===================================================================================== */
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+
+.space-x-2 > * + * { margin-left: 0.5rem; }
+.space-y-1 > * + * { margin-top: 0.25rem; }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+
+/* =====================================================================================
+   📱 APPLE-STYLE CLOSE BUTTON
+   ===================================================================================== */
+
+.absolute {
+  position: absolute;
+}
+
+.top-4 {
+  top: 1rem;
+}
+
+.right-4 {
+  right: 1rem;
+}
+
+.text-gray-500 {
+  color: #86868b;
+}
+
+.hover\:text-gray-700:hover {
+  color: #1d1d1f;
+}
+
+/* Close button styling */
+button.absolute.top-4.right-4 {
+  background: #f2f2f7;
+  color: #86868b;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 400;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+button.absolute.top-4.right-4:hover {
+  background: #e5e5ea;
+  color: #1d1d1f;
+  transform: scale(1.05);
+}
+
+/* =====================================================================================
+   🎯 ICONS & VISUAL ELEMENTS
+   ===================================================================================== */
+
+.text-gray-400 {
+  color: #86868b;
+}
+
+.text-purple-500 {
+  color: #007aff;
+}
+
+.text-pink-500 {
+  color: #ff2d92;
+}
+
+/* =====================================================================================
+   📱 RESPONSIVE DESIGN
+   ===================================================================================== */
+
+@media (max-width: 640px) {
+  .max-w-md {
+    max-width: calc(100vw - 2rem);
+    margin: 1rem;
+  }
+  
+  .p-6 {
+    padding: 1.5rem;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+  
+  .text-4xl {
+    font-size: 2rem;
+  }
+}
+
+/* =====================================================================================
+   ✨ APPLE ANIMATIONS
+   ===================================================================================== */
+
+@keyframes modal-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.bg-white.rounded-2xl {
+  animation: modal-appear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =====================================================================================
+   🔐 PASSWORD STRENGTH (APPLE STYLE)
+   ===================================================================================== */
+
+.password-strength-container {
+  margin-top: 0.75rem;
+}
+
+.password-strength-bar {
+  width: 100%;
+  height: 4px;
+  background: #f2f2f7;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.password-strength-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.password-strength-fill.weak {
+  background: #ff3b30;
+  width: 25%;
+}
+
+.password-strength-fill.fair {
+  background: #ff9500;
+  width: 50%;
+}
+
+.password-strength-fill.good {
+  background: #007aff;
+  width: 75%;
+}
+
+.password-strength-fill.strong {
+  background: #34c759;
+  width: 100%;
+}
+
+.password-checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.password-check {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #86868b;
+}
+
+.password-check.valid {
+  color: #34c759;
+}
+
+/* =====================================================================================
+   🎨 DIVIDER (APPLE STYLE)
+   ===================================================================================== */
+
+.divider-container {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: #d2d2d7;
+}
+
+.divider-text {
+  margin: 0 1rem;
+  color: #86868b;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+/* =====================================================================================
+   🍎 SPECIAL APPLE EFFECTS
+   ===================================================================================== */
+
+.apple-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.apple-shadow {
+  box-shadow: 
+    0 32px 64px rgba(0, 0, 0, 0.12),
+    0 0 0 0.5px rgba(255, 255, 255, 0.5);
+}
+
+.apple-border {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* =====================================================================================
+   🎯 GRID LAYOUTS
+   ===================================================================================== */
+
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-1 {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 640px) {
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
