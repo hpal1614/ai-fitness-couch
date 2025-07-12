@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Send,
@@ -323,6 +321,7 @@ const FitnessCoach = () => {
   const [showStats, setShowStats] = useState(false);
   const [showCoreEngine, setShowCoreEngine] = useState(false);
   const [showLightningDemo, setShowLightningDemo] = useState(false);
+  const [showSecurityDashboard, setShowSecurityDashboard] = useState(false); // <-- Add this line
   const [analytics, setAnalytics] = useState({});
   const [userId] = useState(() => `user_${Date.now()}`);
   const { isAuthenticated, isLoading: isAuthLoading } = useSecurity();
@@ -650,6 +649,23 @@ Now, let's get back to crushing those fitness goals! What would you like to work
             </button>
             <div className="rounded-b-lg overflow-hidden">
               <LightningInputSystemDemo />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Security Dashboard Modal */}
+      {showSecurityDashboard && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[95vh] overflow-auto relative">
+            <button
+              onClick={() => setShowSecurityDashboard(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10"
+            >
+              ✕
+            </button>
+            <div className="rounded-b-lg overflow-hidden">
+              <SecurityDashboard isOpen={true} onClose={() => setShowSecurityDashboard(false)} />
             </div>
           </div>
         </div>

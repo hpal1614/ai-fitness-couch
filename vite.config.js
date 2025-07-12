@@ -22,6 +22,7 @@ export default defineConfig({
   // Build configuration
   build: {
     outDir: 'dist',
+    assetsDir: 'assets',
     sourcemap: true,
     target: 'esnext',
     rollupOptions: {

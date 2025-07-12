@@ -1,27 +1,37 @@
-# AI Fitness Coach
+# AI Fitness Coach 🤖💪
 
-A modern AI-powered fitness coaching web application.
+An intelligent fitness companion powered by AI that provides personalized workout plans, nutrition advice, and motivation.
+
+## Features
+
+- 🏋️ **Smart Workout Planning** - Personalized routines based on your goals
+- 🥗 **Nutrition Guidance** - Diet and supplement recommendations
+- 💪 **Form Checking** - Exercise technique analysis
+- 🎯 **Progress Tracking** - Monitor your fitness journey
+- 🔒 **Security First** - Enterprise-grade session management
+- ⚡ **Lightning Fast** - Optimized performance and caching
+
+## Tech Stack
+
+- React + Vite
+- Tailwind CSS
+- Local Knowledge Base
+- Multiple AI Providers
 
 ## Getting Started
 
-1. Install dependencies:
-   ```sh
-   npm install
-   ```
-2. Start the development server:
-   ```sh
-   npm run dev
-   ```
+```bash
+# Install dependencies
+npm install
 
-## Project Structure
+# Start development server
+npm run dev
+```
 
-- `src/components/` - React components
-- `src/utils/` - Utility functions
-- `src/config/` - Configuration files
-- `src/App.jsx` - Main App component
-- `src/main.jsx` - Entry point
-- `src/index.css` - Global styles
+## Contributing
+
+Contributions welcome! Please read the contributing guidelines first.
 
 ## License
 
-MIT
+MIT © [Himanshu Pal](https://github.com/himanshu1614)

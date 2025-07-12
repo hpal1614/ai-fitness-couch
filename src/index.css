@@ -1,10 +1,17 @@
-/* 🎨 AI FITNESS COACH - GLOBAL STYLES */
-/* Created by Himanshu (himanshu1614) */
-/* Tailwind CSS with custom enhancements */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom component classes */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200;
+  }
+}
 
 /* ===================================================================================== */
 /* 🎯 ROOT VARIABLES */
@@ -268,11 +275,11 @@ body {
 
 /* Cards */
 .card {
-  @apply bg-white rounded-xl shadow-soft border border-gray-100 p-6;
+  @apply bg-white rounded-xl shadow-md border border-gray-100 p-6;
 }
 
 .card-elevated {
-  @apply bg-white rounded-xl shadow-medium border border-gray-100 p-6 hover:shadow-large transition-shadow duration-300;
+  @apply bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300;
 }
 
 /* Glass effect */

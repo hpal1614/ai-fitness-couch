@@ -6,6 +6,31 @@
 // Features: Cost optimization, fallback systems, intelligent responses
 // FILE LOCATION: src/utils/aiService.js
 
+// Add global error handler for debugging white screen issues
+if (typeof window !== 'undefined') {
+  window.addEventListener('error', function (event) {
+    console.error('Global JS Error:', event.message, event.filename, event.lineno, event.colno, event.error);
+    // Optionally, show a visible error overlay for debugging
+    if (!document.getElementById('global-js-error-overlay')) {
+      const overlay = document.createElement('div');
+      overlay.id = 'global-js-error-overlay';
+      overlay.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,0,0,0.1);color:#b91c1c;z-index:99999;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-family:monospace;';
+      overlay.innerText = 'A JavaScript error occurred: ' + event.message;
+      document.body.appendChild(overlay);
+    }
+  });
+  window.addEventListener('unhandledrejection', function (event) {
+    console.error('Global Unhandled Promise Rejection:', event.reason);
+    if (!document.getElementById('global-js-error-overlay')) {
+      const overlay = document.createElement('div');
+      overlay.id = 'global-js-error-overlay';
+      overlay.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,0,0,0.1);color:#b91c1c;z-index:99999;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-family:monospace;';
+      overlay.innerText = 'A JS promise error occurred: ' + event.reason;
+      document.body.appendChild(overlay);
+    }
+  });
+}
+
 import { API_PROVIDERS, ROUTING_RULES, ERROR_MESSAGES, RETRY_CONFIG } from '../config/apiConfig.js';
 import LocalKnowledge, { LocalKnowledgeUtils } from './localKnowledge.js';
 
