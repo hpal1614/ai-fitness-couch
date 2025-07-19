@@ -1,6 +1,7 @@
+// src/App.tsx
 import React from 'react';
-import { SecurityProvider } from './security/SecurityProvider.jsx';
-import FitnessCoach from './components/FitnessCoach.jsx';
+import { SecurityProvider } from './security/SecurityProvider'; // Remove .jsx extension
+import FitnessCoach from './components/FitnessCoach'; // Remove .jsx extension  
 import './index.css';
 
 function App() {

@@ -48,6 +48,22 @@ const getEnvVar = (key: string): string => {
   }
 };
 
+// === DEBUG: Print API key values at startup ===
+if (typeof window !== 'undefined') {
+  // Only print in browser (frontend)
+  // Remove or comment out in production if you don't want to leak keys in console
+  // (Only prints first 6 chars for safety)
+  const safeKey = (k: string) => {
+    const v = getEnvVar(k);
+    return v ? v.slice(0, 6) + '...' : '(empty)';
+  };
+  console.log('[LLMConfig] VITE_OPENROUTER_API_KEY:', safeKey('VITE_OPENROUTER_API_KEY'));
+  console.log('[LLMConfig] VITE_GROQ_API_KEY:', safeKey('VITE_GROQ_API_KEY'));
+  console.log('[LLMConfig] VITE_GOOGLE_AI_API_KEY:', safeKey('VITE_GOOGLE_AI_API_KEY'));
+  console.log('[LLMConfig] VITE_OPENAI_API_KEY:', safeKey('VITE_OPENAI_API_KEY'));
+  console.log('[LLMConfig] VITE_ANTHROPIC_API_KEY:', safeKey('VITE_ANTHROPIC_API_KEY'));
+}
+
 // =====================================================================================
 // 🎯 ROUTING STRATEGY
 // =====================================================================================
@@ -407,15 +423,18 @@ class FitnessLLMConfigManager {
   private validateProviders(): boolean {
     this.availableProviders = [];
     let hasValidApiKey = false;
-    
+
+    // === DEBUG: Print provider config and API key status ===
+    console.log('[LLMConfig] Provider API key check:');
     for (const [name, provider] of Object.entries(OPTIMAL_API_PROVIDERS)) {
       const providerName = name as ProviderName;
       const isLocal = providerName === 'local';
       const hasApiKey = provider.apiKey && provider.apiKey.length > 5;
-      
+      console.log(
+        `  ${provider.name}: apiKey="${provider.apiKey ? provider.apiKey.slice(0, 6) + '...' : '(empty)'}", available=${provider.available}`
+      );
       if (isLocal || hasApiKey) {
         this.availableProviders.push(providerName);
-        
         if (hasApiKey && !isLocal) {
           hasValidApiKey = true;
           console.log(`✅ ${provider.name}: Connected`);
@@ -430,7 +449,7 @@ class FitnessLLMConfigManager {
     if (!hasValidApiKey) {
       console.warn('⚠️ No external API providers configured. Using local knowledge only.');
     }
-    
+
     return this.availableProviders.length > 0;
   }
 

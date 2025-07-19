@@ -1,9 +1,8 @@
 // =====================================================================================
-// 🧠 LOCAL KNOWLEDGE BASE - TYPESCRIPT IMPLEMENTATION
+// 🧠 COMPLETE LOCAL KNOWLEDGE BASE - TYPESCRIPT IMPLEMENTATION
 // =====================================================================================
-// Created by Himanshu (himanshu1614)
-// Complete fitness knowledge database with type safety
-// FILE LOCATION: src/utils/localKnowledge.ts
+// File: src/utils/localKnowledge.ts
+// Replace your current localKnowledge.ts with this complete version
 
 // =====================================================================================
 // 🎯 TYPE DEFINITIONS
@@ -31,38 +30,6 @@ export interface NutritionInfo {
   notes?: string[];
 }
 
-export interface MealTimingInfo {
-  timing: string;
-  focus: string;
-  examples: string[];
-  avoid?: string;
-  ratio?: string;
-  notes?: string[];
-}
-
-export interface HydrationInfo {
-  baseline: string;
-  exercise: string;
-  indicators: string[];
-  electrolytes: {
-    sodium: string;
-    potassium: string;
-    magnesium: string;
-  };
-  tips: string[];
-}
-
-export interface SupplementInfo {
-  evidence_based: Record<string, {
-    dosage: string;
-    benefits: string;
-    timing: string;
-    notes?: string;
-  }>;
-  not_recommended: string[];
-  general_advice: string[];
-}
-
 export interface WorkoutPlan {
   level: 'beginner' | 'intermediate' | 'advanced';
   frequency: string;
@@ -72,15 +39,8 @@ export interface WorkoutPlan {
   progressionTips: string[];
 }
 
-export interface SafetyProtocol {
-  redFlags: string[];
-  emergencyResponse: string;
-  generalGuidelines: string[];
-  warningMessages: Record<string, string>;
-}
-
 export interface MotivationalContent {
-  encouragement: Record<string, string | string[]>;
+  encouragement: Record<string, string>;
   daily_quotes: string[];
   success_principles: string[];
   mindset_tips: string[];
@@ -95,100 +55,117 @@ export const EXERCISE_DATABASE: Record<string, ExerciseData> = {
     name: 'Squat',
     muscles: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'],
     difficulty: 'Beginner',
-    equipment: ['Bodyweight', 'Barbell', 'Dumbbells', 'Goblet'],
+    equipment: ['Bodyweight', 'Barbell', 'Dumbbells'],
     description: 'The king of all exercises - a fundamental movement pattern that builds lower body strength and power.',
     instructions: [
       'Stand with feet shoulder-width apart, toes slightly pointed out',
-      'Keep your chest up and core engaged throughout the movement',
-      'Initiate the movement by pushing your hips back and bending your knees',
-      'Lower until your thighs are parallel to the ground (or as low as mobility allows)',
+      'Keep your chest up and core engaged',
+      'Lower your body by pushing your hips back and bending your knees',
+      'Descend until your thighs are parallel to the floor',
       'Drive through your heels to return to the starting position',
-      'Keep your knees tracking in line with your toes'
+      'Keep your knees tracking over your toes throughout the movement'
     ],
     commonMistakes: [
-      'Knees caving inward (valgus collapse)',
-      'Forward lean with chest dropping',
-      'Not going deep enough (partial range of motion)',
-      'Weight shifting to toes instead of heels',
-      'Rounding the lower back at the bottom'
+      'Knees caving inward',
+      'Not going deep enough',
+      'Leaning too far forward',
+      'Rising up on toes',
+      'Not engaging the core'
     ],
     safetyTips: [
-      'Always warm up with bodyweight squats first',
-      'Focus on mobility before adding weight',
-      'Start with bodyweight and progress gradually',
-      'Keep your core tight throughout the movement',
-      'Don\'t sacrifice form for deeper range of motion'
-    ],
-    variations: [
-      'Goblet Squat (beginner-friendly)',
-      'Front Squat (quad emphasis)',
-      'Bulgarian Split Squat (unilateral)',
-      'Jump Squat (explosive power)'
-    ],
-    progressions: [
-      'Bodyweight squat → Goblet squat → Barbell back squat',
-      'Box squat for learning proper depth',
-      'Wall squat for form practice'
+      'Always warm up before squatting',
+      'Start with bodyweight before adding weight',
+      'Keep your core tight throughout',
+      'Don\'t let your knees cave inward',
+      'Stop if you feel sharp pain'
     ]
   },
 
   deadlift: {
     name: 'Deadlift',
-    muscles: ['Hamstrings', 'Glutes', 'Erector Spinae', 'Trapezius', 'Forearms'],
+    muscles: ['Hamstrings', 'Glutes', 'Erector Spinae', 'Traps', 'Lats'],
     difficulty: 'Intermediate',
-    equipment: ['Barbell', 'Dumbbells', 'Kettlebell'],
-    description: 'The ultimate posterior chain exercise that builds total-body strength and power.',
+    equipment: ['Barbell', 'Dumbbells'],
+    description: 'A compound movement that works the entire posterior chain and builds total-body strength.',
     instructions: [
       'Stand with feet hip-width apart, bar over mid-foot',
-      'Hinge at the hips and grab the bar with hands just outside your legs',
-      'Keep your chest up and shoulders back',
-      'Drive through your heels and squeeze your glutes to lift the bar',
+      'Bend at hips and knees, grip the bar with hands just outside legs',
+      'Keep chest up and shoulders back',
+      'Drive through heels and extend hips and knees simultaneously',
       'Keep the bar close to your body throughout the movement',
-      'Stand tall at the top, then reverse the movement to lower'
+      'Stand tall at the top, then reverse the movement'
     ],
     commonMistakes: [
-      'Rounding the back (especially lower back)',
       'Bar drifting away from the body',
-      'Not engaging the lats to keep bar close',
+      'Rounding the back',
       'Hyperextending at the top',
-      'Not hinging at the hips properly'
+      'Using arms to lift instead of legs and hips',
+      'Looking up instead of keeping neutral neck'
     ],
     safetyTips: [
-      'Master the hip hinge pattern first',
-      'Start with light weight and focus on form',
-      'Keep your core braced throughout',
-      'Don\'t look up - maintain neutral neck',
-      'Use proper footwear (flat, stable shoes)'
+      'Master the hip hinge movement first',
+      'Keep your back neutral throughout',
+      'Start with light weight to learn proper form',
+      'Use proper footwear with flat soles',
+      'Don\'t deadlift if you have lower back pain'
     ]
   },
 
-  'bench press': {
-    name: 'Bench Press',
-    muscles: ['Pectorals', 'Anterior Deltoids', 'Triceps'],
-    difficulty: 'Intermediate',
-    equipment: ['Barbell', 'Bench', 'Dumbbells'],
-    description: 'The premier upper body pushing exercise for building chest, shoulder, and tricep strength.',
+  pushup: {
+    name: 'Push-up',
+    muscles: ['Chest', 'Triceps', 'Shoulders', 'Core'],
+    difficulty: 'Beginner',
+    equipment: ['Bodyweight'],
+    description: 'A classic bodyweight exercise that builds upper body and core strength.',
     instructions: [
-      'Lie on the bench with eyes under the barbell',
-      'Plant your feet firmly on the ground',
-      'Grab the bar with hands slightly wider than shoulder-width',
-      'Create a slight arch in your back and squeeze your shoulder blades',
-      'Lower the bar to your chest with control',
-      'Press the bar back up in a straight line'
+      'Start in a plank position with hands slightly wider than shoulders',
+      'Keep your body in a straight line from head to heels',
+      'Lower your chest toward the floor by bending your elbows',
+      'Push back up to the starting position',
+      'Keep your core tight throughout the movement'
     ],
     commonMistakes: [
-      'Bouncing the bar off the chest',
-      'Flaring elbows too wide (90+ degrees)',
-      'Not using leg drive',
-      'Lifting feet off the ground',
-      'Not retracting shoulder blades'
+      'Sagging hips',
+      'Flaring elbows too wide',
+      'Not going through full range of motion',
+      'Looking up instead of keeping neutral neck',
+      'Rushing the movement'
     ],
     safetyTips: [
-      'Always use a spotter when lifting heavy',
-      'Set safety bars at appropriate height',
-      'Warm up thoroughly before heavy sets',
-      'Don\'t train to failure without a spotter',
-      'Keep wrists straight and strong'
+      'Modify on knees if needed',
+      'Keep wrists aligned under shoulders',
+      'Engage your core to protect your lower back',
+      'Progress gradually',
+      'Stop if you feel wrist or shoulder pain'
+    ]
+  },
+
+  pullup: {
+    name: 'Pull-up',
+    muscles: ['Lats', 'Rhomboids', 'Biceps', 'Rear Delts'],
+    difficulty: 'Advanced',
+    equipment: ['Pull-up bar'],
+    description: 'An excellent upper body pulling exercise that builds back and arm strength.',
+    instructions: [
+      'Hang from the bar with palms facing away, hands shoulder-width apart',
+      'Start with arms fully extended',
+      'Pull your body up until your chin clears the bar',
+      'Lower yourself back down with control',
+      'Keep your core engaged throughout'
+    ],
+    commonMistakes: [
+      'Using momentum to swing up',
+      'Not going through full range of motion',
+      'Shrugging shoulders at the top',
+      'Crossing legs or kicking',
+      'Gripping too wide or too narrow'
+    ],
+    safetyTips: [
+      'Build up to pull-ups with assisted variations',
+      'Use proper grip to avoid slipping',
+      'Don\'t drop down quickly - control the descent',
+      'Warm up shoulders and arms first',
+      'Progress gradually'
     ]
   },
 
@@ -197,26 +174,27 @@ export const EXERCISE_DATABASE: Record<string, ExerciseData> = {
     muscles: ['Core', 'Shoulders', 'Glutes'],
     difficulty: 'Beginner',
     equipment: ['Bodyweight'],
-    description: 'A fundamental core stability exercise that builds strength and endurance.',
+    description: 'An isometric core exercise that builds stability and endurance.',
     instructions: [
-      'Start in a push-up position with forearms on the ground',
+      'Start in a push-up position',
+      'Lower down to your forearms',
       'Keep your body in a straight line from head to heels',
-      'Engage your core and squeeze your glutes',
-      'Breathe normally while holding the position',
-      'Focus on quality over duration'
+      'Hold this position while breathing normally',
+      'Keep your core tight and glutes engaged'
     ],
     commonMistakes: [
-      'Letting hips sag or pike up',
+      'Sagging hips',
+      'Raising hips too high',
       'Holding breath',
       'Looking up instead of down',
-      'Not engaging glutes',
-      'Putting too much weight on forearms'
+      'Placing forearms too wide'
     ],
     safetyTips: [
       'Start with shorter holds and build up',
-      'Focus on perfect form over time',
+      'Keep breathing throughout',
       'Stop if you feel lower back pain',
-      'Keep breathing throughout the hold'
+      'Modify on knees if needed',
+      'Focus on quality over duration'
     ]
   }
 };
@@ -225,304 +203,50 @@ export const EXERCISE_DATABASE: Record<string, ExerciseData> = {
 // 🥗 NUTRITION DATABASE
 // =====================================================================================
 
-export const NUTRITION_DATABASE = {
-  macronutrients: {
-    protein: {
-      recommendation: '1.6-2.2g per kg bodyweight for active individuals',
-      sources: [
-        'Lean chicken breast',
-        'Fish (salmon, tuna, cod)',
-        'Eggs and egg whites',
-        'Greek yogurt',
-        'Cottage cheese',
-        'Lean beef',
-        'Legumes (beans, lentils)',
-        'Tofu and tempeh',
-        'Protein powder (whey, casein, plant-based)'
-      ],
-      timing: 'Distribute evenly throughout the day, with emphasis post-workout',
-      benefits: [
-        'Muscle protein synthesis',
-        'Increased satiety',
-        'Metabolic boost (thermic effect)',
-        'Muscle preservation during weight loss',
-        'Improved recovery from exercise'
-      ],
-      dailyIntake: 'Aim for 20-40g per meal',
-      notes: [
-        'Complete proteins contain all essential amino acids',
-        'Plant proteins should be varied for complete amino acid profile',
-        'Post-workout protein within 2 hours is optimal'
-      ]
-    },
-
-    carbohydrates: {
-      recommendation: '3-7g per kg bodyweight depending on activity level',
-      sources: [
-        'Whole grains (oats, brown rice, quinoa)',
-        'Fruits (bananas, berries, apples)',
-        'Vegetables (sweet potatoes, regular potatoes)',
-        'Legumes (beans, lentils)',
-        'Whole grain bread and pasta'
-      ],
-      timing: 'Focus around workouts for energy and recovery',
-      benefits: [
-        'Primary energy source for high-intensity exercise',
-        'Glycogen replenishment',
-        'Brain function support',
-        'Protein sparing effect',
-        'Improved workout performance'
-      ],
-      dailyIntake: 'Varies greatly based on activity level and goals'
-    },
-
-    fats: {
-      recommendation: '0.8-1.2g per kg bodyweight (20-35% of total calories)',
-      sources: [
-        'Avocados',
-        'Nuts and seeds',
-        'Olive oil and olives',
-        'Fatty fish (salmon, mackerel)',
-        'Coconut oil',
-        'Grass-fed butter',
-        'Dark chocolate (85%+ cacao)'
-      ],
-      timing: 'Throughout the day, but limit close to workouts',
-      benefits: [
-        'Hormone production support',
-        'Vitamin absorption (A, D, E, K)',
-        'Satiety and meal satisfaction',
-        'Essential fatty acid provision',
-        'Anti-inflammatory effects (omega-3s)'
-      ]
-    }
-  },
-
-  meal_timing: {
-    pre_workout: {
-      timing: '30-90 minutes before exercise',
-      focus: 'Easy-to-digest carbs with moderate protein, minimal fat and fiber',
-      examples: [
-        'Banana with a small amount of almond butter',
-        'Oatmeal with berries',
-        'Greek yogurt with honey',
-        'Toast with jam',
-        'Apple with a small piece of cheese',
-        'Sports drink for workouts >90 minutes'
-      ],
-      avoid: 'High fiber, high fat, or very large meals',
-      ratio: '3:1 or 4:1 carbs to protein',
-      notes: [
-        'Closer to workout = simpler carbs',
-        'Individual tolerance varies greatly',
-        'Hydrate well before training'
-      ]
-    },
-
-    post_workout: {
-      timing: 'Within 30-120 minutes after exercise',
-      focus: 'Protein for recovery, carbs to replenish glycogen',
-      examples: [
-        'Protein shake with banana',
-        'Chocolate milk',
-        'Greek yogurt with granola',
-        'Chicken and rice',
-        'Tuna sandwich',
-        'Eggs with toast'
-      ],
-      ratio: '3:1 carbs to protein for endurance, 1:1 for strength training',
-      notes: [
-        'Window is longer than previously thought',
-        'Total daily intake matters more than timing',
-        'Whole foods are preferred when possible'
-      ]
-    },
-
-    throughout_day: {
-      timing: 'Every 3-4 hours',
-      focus: 'Balanced meals with all macronutrients',
-      examples: [
-        'Balanced breakfast with protein, carbs, and healthy fats',
-        'Lunch with lean protein, complex carbs, and vegetables',
-        'Healthy snacks between meals',
-        'Dinner focusing on protein and vegetables'
-      ]
-    }
-  },
-
-  hydration: {
-    baseline: '35ml per kg bodyweight daily (about 8-10 glasses)',
-    exercise: 'Additional 500-750ml per hour of intense exercise',
-    indicators: [
-      'Pale yellow urine (like lemonade)',
-      'Minimal thirst throughout the day',
-      'Good energy levels',
-      'Skin elasticity (pinch test)',
-      'Moist mouth and lips'
+export const NUTRITION_DATABASE: Record<string, NutritionInfo> = {
+  protein: {
+    recommendation: 'Consume 0.8-1.2g per pound of bodyweight daily for muscle building and recovery',
+    sources: ['Lean meats', 'Fish', 'Eggs', 'Dairy', 'Legumes', 'Protein powder'],
+    timing: 'Spread throughout the day, with emphasis post-workout',
+    benefits: [
+      'Muscle protein synthesis',
+      'Tissue repair and recovery',
+      'Satiety and appetite control',
+      'Metabolic boost'
     ],
-    electrolytes: {
-      sodium: '200-400mg per hour during exercise lasting >60 minutes',
-      potassium: 'Focus on fruits and vegetables for natural sources',
-      magnesium: '400mg daily for optimal muscle and nerve function'
-    },
-    tips: [
-      'Start hydrating early in the day',
-      'Monitor urine color as a hydration gauge',
-      'Increase intake in hot weather or during illness',
-      'Don\'t wait until you\'re thirsty to drink'
-    ]
+    dailyIntake: '0.8-1.2g per lb bodyweight',
+    notes: ['Quality matters - choose complete proteins when possible']
   },
 
-  supplementation: {
-    evidence_based: {
-      creatine: {
-        dosage: '3-5g daily (loading phase not necessary)',
-        benefits: 'Increased power output, muscle mass, and exercise performance',
-        timing: 'Anytime - consistency matters more than timing',
-        notes: 'One of the most researched and effective supplements'
-      },
-      protein_powder: {
-        dosage: '20-40g per serving as needed',
-        benefits: 'Convenient protein source, muscle building support',
-        timing: 'Post-workout or between meals when whole foods aren\'t available',
-        notes: 'Not necessary if meeting protein needs through whole foods'
-      },
-      vitamin_d: {
-        dosage: '1000-4000 IU daily (depending on blood levels)',
-        benefits: 'Bone health, immune function, mood support',
-        timing: 'With fat-containing meal for better absorption',
-        notes: 'Many people are deficient, especially in winter months'
-      },
-      omega_3: {
-        dosage: '1-3g daily (EPA + DHA combined)',
-        benefits: 'Anti-inflammatory effects, heart health, brain function',
-        timing: 'With meals to reduce fishy aftertaste',
-        notes: 'Focus on EPA and DHA from fish oil or algae'
-      }
-    },
-    not_recommended: [
-      'Fat burners (most are ineffective or unsafe)',
-      'Testosterone boosters (minimal evidence)',
-      'Detox teas and cleanses',
-      'Mega-dose vitamins (unless deficient)',
-      'Expensive proprietary blends'
+  carbohydrates: {
+    recommendation: 'Primary energy source - time around workouts for optimal performance',
+    sources: ['Whole grains', 'Fruits', 'Vegetables', 'Sweet potatoes', 'Oats'],
+    timing: 'Pre and post-workout, moderate throughout the day',
+    benefits: [
+      'Primary fuel for workouts',
+      'Glycogen replenishment',
+      'Brain function',
+      'Recovery enhancement'
     ],
-    general_advice: [
-      'Supplements supplement a good diet, they don\'t replace it',
-      'Focus on whole foods first',
-      'Buy from reputable companies with third-party testing',
-      'Consult healthcare providers before starting new supplements'
-    ]
+    notes: ['Choose complex carbs over simple sugars for sustained energy']
+  },
+
+  fats: {
+    recommendation: '20-30% of total daily calories from healthy fat sources',
+    sources: ['Nuts', 'Seeds', 'Olive oil', 'Avocado', 'Fatty fish', 'Coconut oil'],
+    timing: 'Throughout the day, avoid immediately pre-workout',
+    benefits: [
+      'Hormone production',
+      'Vitamin absorption',
+      'Satiety',
+      'Brain health'
+    ],
+    notes: ['Focus on unsaturated fats, limit trans fats']
   }
 };
 
 // =====================================================================================
-// 💪 MOTIVATIONAL CONTENT
-// =====================================================================================
-
-export const MOTIVATIONAL_CONTENT: MotivationalContent = {
-  encouragement: {
-    general: 'Every step forward is progress, no matter how small. You\'re building the foundation for a stronger, healthier you!',
-    
-    struggling: 'Every champion was once a beginner who refused to give up. Your struggles today are building the mental and physical strength you\'ll need for tomorrow. Each rep, each workout, each healthy choice is an investment in your future self.',
-    
-    plateau: 'Plateaus aren\'t roadblocks - they\'re launching pads! Your body has adapted to your current routine, which means it\'s time to challenge yourself in new ways. This is where real growth happens. Trust the process and embrace the challenge.',
-    
-    comeback: 'Comebacks are always stronger than setbacks. You have experience now that you didn\'t have before. Use that knowledge, be patient with your body, and remember that consistency beats perfection every single time.',
-    
-    beginner: 'Welcome to the beginning of an amazing journey! Every expert was once a beginner. Focus on building habits, not perfection. Celebrate every small win - they add up to incredible transformations.',
-    
-    advanced: 'Your dedication has brought you this far, and that\'s incredible! Remember that even at your level, the fundamentals matter most. Keep challenging yourself while staying true to what got you here.'
-  },
-
-  daily_quotes: [
-    'The only bad workout is the one that didn\'t happen.',
-    'Your body can do it. It\'s your mind you need to convince.',
-    'Progress, not perfection, is the goal.',
-    'Strong is the new skinny.',
-    'You are your only limit.',
-    'Fall seven times, get up eight.',
-    'The pain you feel today will be the strength you feel tomorrow.',
-    'Champions train, losers complain.',
-    'Your future self will thank you.',
-    'Consistency is the mother of mastery.',
-    'The hardest lift is lifting yourself off the couch.',
-    'Sweat is just fat crying.',
-    'Make yourself proud.',
-    'You don\'t have to be great to get started, but you have to get started to be great.',
-    'The body achieves what the mind believes.'
-  ],
-
-  success_principles: [
-    'Consistency beats perfection every time',
-    'Focus on systems and habits, not just goals',
-    'Progress is not always linear - expect ups and downs',
-    'Small improvements compound over time',
-    'Listen to your body and rest when needed',
-    'Celebrate small victories along the way',
-    'The journey is just as important as the destination'
-  ],
-
-  mindset_tips: [
-    'View challenges as opportunities to grow stronger',
-    'Compare yourself to who you were yesterday, not to others',
-    'Focus on what your body can do, not just how it looks',
-    'Treat setbacks as learning experiences',
-    'Remember that discipline is self-love in action',
-    'Visualize your success and work backwards from there',
-    'Surround yourself with people who support your goals'
-  ]
-};
-
-// =====================================================================================
-// 🛡️ SAFETY PROTOCOLS
-// =====================================================================================
-
-export const SAFETY_PROTOCOLS: SafetyProtocol = {
-  redFlags: [
-    'chest pain',
-    'severe shortness of breath',
-    'dizziness or fainting',
-    'nausea or vomiting during exercise',
-    'severe joint pain',
-    'sharp or shooting pains',
-    'numbness or tingling',
-    'irregular heartbeat',
-    'excessive fatigue'
-  ],
-
-  emergencyResponse: `🚨 IMMEDIATE ACTION REQUIRED:
-1. Stop all physical activity immediately
-2. Seek emergency medical attention if experiencing:
-   - Chest pain or pressure
-   - Severe difficulty breathing
-   - Fainting or near-fainting
-   - Severe nausea or vomiting
-3. Call emergency services (911) if symptoms are severe
-4. Contact your healthcare provider for any concerning symptoms`,
-
-  generalGuidelines: [
-    'Always warm up before intense exercise',
-    'Cool down and stretch after workouts',
-    'Stay hydrated before, during, and after exercise',
-    'Listen to your body - pain is different from discomfort',
-    'Progress gradually - increase intensity by no more than 10% per week',
-    'Get adequate rest and recovery between sessions',
-    'Use proper form over lifting heavy weights',
-    'Consult a healthcare provider before starting a new exercise program'
-  ],
-
-  warningMessages: {
-    pain: 'Pain is your body\'s warning signal. Stop the exercise and assess the situation.',
-    fatigue: 'Excessive fatigue may indicate overtraining. Consider reducing intensity or taking extra rest.',
-    injury: 'Any acute injury should be evaluated by a healthcare professional.',
-    breathing: 'Difficulty breathing during exercise may indicate a serious condition requiring immediate attention.',
-    heart: 'Irregular heartbeat or chest pain requires immediate medical evaluation.'
-  }
-};
-
-// =====================================================================================
-// 🏋️ WORKOUT PLANNING DATABASE
+// 🏋️ WORKOUT PLANS DATABASE
 // =====================================================================================
 
 export const WORKOUT_PLANS: Record<string, WorkoutPlan> = {
@@ -535,10 +259,7 @@ export const WORKOUT_PLANS: Record<string, WorkoutPlan> = {
       'Push-ups (modified as needed)',
       'Planks',
       'Walking or light cardio',
-      'Basic stretching routine',
-      'Glute bridges',
-      'Wall sits',
-      'Incline push-ups'
+      'Basic stretching routine'
     ],
     principles: [
       'Focus on learning proper form over intensity',
@@ -565,9 +286,7 @@ export const WORKOUT_PLANS: Record<string, WorkoutPlan> = {
       'Bench press or push-ups',
       'Rows (dumbbell or barbell)',
       'Overhead press',
-      'Pull-ups or lat pulldowns',
-      'Lunges or step-ups',
-      'Planks and core variations'
+      'Pull-ups or lat pulldowns'
     ],
     principles: [
       'Add progressive overload through weight, reps, or sets',
@@ -593,10 +312,7 @@ export const WORKOUT_PLANS: Record<string, WorkoutPlan> = {
       'Olympic lifts or derivatives',
       'Advanced movement patterns',
       'Accessory work targeting weak points',
-      'Sport-specific training',
-      'Advanced core and stability work',
-      'Plyometric exercises',
-      'Complex training methods'
+      'Sport-specific training'
     ],
     principles: [
       'Use periodization strategies (linear, undulating, block)',
@@ -615,15 +331,63 @@ export const WORKOUT_PLANS: Record<string, WorkoutPlan> = {
 };
 
 // =====================================================================================
-// 🔧 UTILITY FUNCTIONS
+// 💪 MOTIVATIONAL CONTENT
+// =====================================================================================
+
+export const MOTIVATIONAL_CONTENT: MotivationalContent = {
+  encouragement: {
+    general: 'Every step forward is progress, no matter how small. You\'re building the foundation for a stronger, healthier you!',
+    struggling: 'Every champion was once a beginner who refused to give up. Your struggles today are building the mental and physical strength you\'ll need for tomorrow.',
+    plateau: 'Plateaus aren\'t roadblocks - they\'re launching pads! Your body has adapted to your current routine, which means it\'s time to challenge yourself in new ways.',
+    comeback: 'Comebacks are always stronger than setbacks. You have experience now that you didn\'t have before. Use that knowledge and be patient with your body.',
+    beginner: 'Welcome to the beginning of an amazing journey! Every expert was once a beginner. Focus on building habits, not perfection.',
+    advanced: 'Your dedication has brought you this far! Remember that even at your level, the fundamentals matter most.'
+  },
+
+  daily_quotes: [
+    'The only bad workout is the one that didn\'t happen.',
+    'Your body can do it. It\'s your mind you need to convince.',
+    'Progress, not perfection, is the goal.',
+    'Strong is the new skinny.',
+    'You are your only limit.',
+    'The pain you feel today will be the strength you feel tomorrow.',
+    'Champions train, losers complain.',
+    'Your future self will thank you.',
+    'Consistency is the mother of mastery.',
+    'Every rep counts, every day matters.',
+    'Discipline is choosing between what you want now and what you want most.',
+    'The hardest part is showing up.'
+  ],
+
+  success_principles: [
+    'Consistency beats perfection every time',
+    'Focus on systems and habits, not just goals',
+    'Progress is not always linear - expect ups and downs',
+    'Small improvements compound over time',
+    'Listen to your body and rest when needed'
+  ],
+
+  mindset_tips: [
+    'View challenges as opportunities to grow stronger',
+    'Compare yourself to who you were yesterday, not to others',
+    'Focus on what your body can do, not just how it looks',
+    'Treat setbacks as learning experiences',
+    'Remember that discipline is self-love in action'
+  ]
+};
+
+// =====================================================================================
+// 🔧 COMPLETE UTILITY FUNCTIONS
 // =====================================================================================
 
 export class LocalKnowledgeUtils {
   static checkSafetyFlags(message: string): string[] {
+    const redFlags = [
+      'chest pain', 'severe shortness of breath', 'dizziness', 'fainting', 
+      'severe joint pain', 'sharp pain', 'numbness', 'tingling'
+    ];
     const normalizedMessage = message.toLowerCase();
-    return SAFETY_PROTOCOLS.redFlags.filter(flag => 
-      normalizedMessage.includes(flag)
-    );
+    return redFlags.filter(flag => normalizedMessage.includes(flag));
   }
 
   static getExercise(name: string): ExerciseData | null {
@@ -640,7 +404,7 @@ export class LocalKnowledgeUtils {
 
   static getNutritionInfo(macronutrient: string): NutritionInfo | null {
     const normalizedMacro = macronutrient.toLowerCase();
-    return NUTRITION_DATABASE.macronutrients[normalizedMacro as keyof typeof NUTRITION_DATABASE.macronutrients] || null;
+    return NUTRITION_DATABASE[normalizedMacro] || null;
   }
 
   static getRandomMotivation(): string {
@@ -651,32 +415,12 @@ export class LocalKnowledgeUtils {
   static getMotivationByState(state: string): string {
     const normalizedState = state.toLowerCase();
     const encouragement = MOTIVATIONAL_CONTENT.encouragement[normalizedState];
-    
-    if (typeof encouragement === 'string') {
-      return encouragement;
-    } else if (Array.isArray(encouragement)) {
-      return encouragement[Math.floor(Math.random() * encouragement.length)] || '';
-    }
-    
-    return MOTIVATIONAL_CONTENT.encouragement.general;
+    return encouragement || MOTIVATIONAL_CONTENT.encouragement.general;
   }
 
   static getWorkoutPlan(level: string): WorkoutPlan | null {
-    const normalizedLevel = level.toLowerCase();
+    const normalizedLevel = level.toLowerCase() as 'beginner' | 'intermediate' | 'advanced';
     return WORKOUT_PLANS[normalizedLevel] || null;
-  }
-
-  static getMealTiming(timing: string): MealTimingInfo | null {
-    const normalizedTiming = timing.toLowerCase();
-    return NUTRITION_DATABASE.meal_timing[normalizedTiming as keyof typeof NUTRITION_DATABASE.meal_timing] || null;
-  }
-
-  static getSupplementInfo(): SupplementInfo {
-    return NUTRITION_DATABASE.supplementation;
-  }
-
-  static getHydrationInfo(): HydrationInfo {
-    return NUTRITION_DATABASE.hydration;
   }
 
   static validateInput(input: string): { isValid: boolean; message?: string } {
@@ -701,24 +445,51 @@ export class LocalKnowledgeUtils {
     
     return { isValid: true };
   }
+
+  // Additional utility methods for comprehensive functionality
+  static getAllExercises(): ExerciseData[] {
+    return Object.values(EXERCISE_DATABASE);
+  }
+
+  static getExercisesByDifficulty(difficulty: 'Beginner' | 'Intermediate' | 'Advanced'): ExerciseData[] {
+    return Object.values(EXERCISE_DATABASE).filter(exercise => exercise.difficulty === difficulty);
+  }
+
+  static searchExercises(query: string): ExerciseData[] {
+    const normalizedQuery = query.toLowerCase();
+    return Object.values(EXERCISE_DATABASE).filter(exercise =>
+      exercise.name.toLowerCase().includes(normalizedQuery) ||
+      exercise.muscles.some(muscle => muscle.toLowerCase().includes(normalizedQuery)) ||
+      exercise.equipment.some(equipment => equipment.toLowerCase().includes(normalizedQuery))
+    );
+  }
+
+  static getRandomWorkoutTip(): string {
+    const tips = [
+      'Remember to warm up before every workout!',
+      'Proper form is more important than heavy weight.',
+      'Stay hydrated throughout your workout.',
+      'Don\'t forget to cool down and stretch after exercising.',
+      'Listen to your body - rest when you need it.',
+      'Progressive overload is key to continuous improvement.',
+      'Compound movements give you the most bang for your buck.',
+      'Consistency beats intensity every time.'
+    ];
+    return tips[Math.floor(Math.random() * tips.length)];
+  }
 }
 
 // =====================================================================================
 // 📤 EXPORTS
 // =====================================================================================
 
-// Main knowledge database
 export const LocalKnowledge = {
   EXERCISE_DATABASE,
   NUTRITION_DATABASE,
-  MOTIVATIONAL_CONTENT,
-  SAFETY_PROTOCOLS,
   WORKOUT_PLANS,
+  MOTIVATIONAL_CONTENT,
   utils: LocalKnowledgeUtils
 };
 
-// Utility functions
 export const utils = LocalKnowledgeUtils;
-
-// Default export
 export default LocalKnowledge;
