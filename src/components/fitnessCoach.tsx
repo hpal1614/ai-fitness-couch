@@ -684,6 +684,7 @@ Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
           </div>
         </div>
       )}
+      <AIDebugger />
     </div>
   );
 };
