@@ -1,495 +1,490 @@
 // =====================================================================================
-// 🧠 COMPLETE LOCAL KNOWLEDGE BASE - TYPESCRIPT IMPLEMENTATION
+// 📚 COMPLETE LOCAL KNOWLEDGE IMPLEMENTATION - FIXED ALL MISSING METHODS
 // =====================================================================================
 // File: src/utils/localKnowledge.ts
-// Replace your current localKnowledge.ts with this complete version
 
-// =====================================================================================
-// 🎯 TYPE DEFINITIONS
-// =====================================================================================
-
-export interface ExerciseData {
-  name: string;
-  muscles: string[];
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  equipment: string[];
-  description: string;
-  instructions: string[];
-  commonMistakes: string[];
-  safetyTips: string[];
-  variations?: string[];
-  progressions?: string[];
+export interface KnowledgeItem {
+  patterns: string[];
+  response: string;
+  confidence: number;
+  category: string;
+  id?: string;
+  tags?: string[];
+  lastUsed?: number;
+  useCount?: number;
 }
 
-export interface NutritionInfo {
-  recommendation: string;
-  sources: string[];
-  timing: string;
-  benefits: string[];
-  dailyIntake?: string;
-  notes?: string[];
+export interface LocalResponse {
+  content: string;
+  confidence: number;
+  category: string;
+  source?: string;
 }
 
-export interface WorkoutPlan {
-  level: 'beginner' | 'intermediate' | 'advanced';
-  frequency: string;
-  structure: string;
-  exercises: string[];
-  principles: string[];
-  progressionTips: string[];
-}
+export class LocalKnowledge {
+  private knowledgeBase: KnowledgeItem[];
+  private categories: Set<string>;
 
-export interface MotivationalContent {
-  encouragement: Record<string, string>;
-  daily_quotes: string[];
-  success_principles: string[];
-  mindset_tips: string[];
-}
-
-// =====================================================================================
-// 📊 EXERCISE DATABASE
-// =====================================================================================
-
-export const EXERCISE_DATABASE: Record<string, ExerciseData> = {
-  squat: {
-    name: 'Squat',
-    muscles: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'],
-    difficulty: 'Beginner',
-    equipment: ['Bodyweight', 'Barbell', 'Dumbbells'],
-    description: 'The king of all exercises - a fundamental movement pattern that builds lower body strength and power.',
-    instructions: [
-      'Stand with feet shoulder-width apart, toes slightly pointed out',
-      'Keep your chest up and core engaged',
-      'Lower your body by pushing your hips back and bending your knees',
-      'Descend until your thighs are parallel to the floor',
-      'Drive through your heels to return to the starting position',
-      'Keep your knees tracking over your toes throughout the movement'
-    ],
-    commonMistakes: [
-      'Knees caving inward',
-      'Not going deep enough',
-      'Leaning too far forward',
-      'Rising up on toes',
-      'Not engaging the core'
-    ],
-    safetyTips: [
-      'Always warm up before squatting',
-      'Start with bodyweight before adding weight',
-      'Keep your core tight throughout',
-      'Don\'t let your knees cave inward',
-      'Stop if you feel sharp pain'
-    ]
-  },
-
-  deadlift: {
-    name: 'Deadlift',
-    muscles: ['Hamstrings', 'Glutes', 'Erector Spinae', 'Traps', 'Lats'],
-    difficulty: 'Intermediate',
-    equipment: ['Barbell', 'Dumbbells'],
-    description: 'A compound movement that works the entire posterior chain and builds total-body strength.',
-    instructions: [
-      'Stand with feet hip-width apart, bar over mid-foot',
-      'Bend at hips and knees, grip the bar with hands just outside legs',
-      'Keep chest up and shoulders back',
-      'Drive through heels and extend hips and knees simultaneously',
-      'Keep the bar close to your body throughout the movement',
-      'Stand tall at the top, then reverse the movement'
-    ],
-    commonMistakes: [
-      'Bar drifting away from the body',
-      'Rounding the back',
-      'Hyperextending at the top',
-      'Using arms to lift instead of legs and hips',
-      'Looking up instead of keeping neutral neck'
-    ],
-    safetyTips: [
-      'Master the hip hinge movement first',
-      'Keep your back neutral throughout',
-      'Start with light weight to learn proper form',
-      'Use proper footwear with flat soles',
-      'Don\'t deadlift if you have lower back pain'
-    ]
-  },
-
-  pushup: {
-    name: 'Push-up',
-    muscles: ['Chest', 'Triceps', 'Shoulders', 'Core'],
-    difficulty: 'Beginner',
-    equipment: ['Bodyweight'],
-    description: 'A classic bodyweight exercise that builds upper body and core strength.',
-    instructions: [
-      'Start in a plank position with hands slightly wider than shoulders',
-      'Keep your body in a straight line from head to heels',
-      'Lower your chest toward the floor by bending your elbows',
-      'Push back up to the starting position',
-      'Keep your core tight throughout the movement'
-    ],
-    commonMistakes: [
-      'Sagging hips',
-      'Flaring elbows too wide',
-      'Not going through full range of motion',
-      'Looking up instead of keeping neutral neck',
-      'Rushing the movement'
-    ],
-    safetyTips: [
-      'Modify on knees if needed',
-      'Keep wrists aligned under shoulders',
-      'Engage your core to protect your lower back',
-      'Progress gradually',
-      'Stop if you feel wrist or shoulder pain'
-    ]
-  },
-
-  pullup: {
-    name: 'Pull-up',
-    muscles: ['Lats', 'Rhomboids', 'Biceps', 'Rear Delts'],
-    difficulty: 'Advanced',
-    equipment: ['Pull-up bar'],
-    description: 'An excellent upper body pulling exercise that builds back and arm strength.',
-    instructions: [
-      'Hang from the bar with palms facing away, hands shoulder-width apart',
-      'Start with arms fully extended',
-      'Pull your body up until your chin clears the bar',
-      'Lower yourself back down with control',
-      'Keep your core engaged throughout'
-    ],
-    commonMistakes: [
-      'Using momentum to swing up',
-      'Not going through full range of motion',
-      'Shrugging shoulders at the top',
-      'Crossing legs or kicking',
-      'Gripping too wide or too narrow'
-    ],
-    safetyTips: [
-      'Build up to pull-ups with assisted variations',
-      'Use proper grip to avoid slipping',
-      'Don\'t drop down quickly - control the descent',
-      'Warm up shoulders and arms first',
-      'Progress gradually'
-    ]
-  },
-
-  plank: {
-    name: 'Plank',
-    muscles: ['Core', 'Shoulders', 'Glutes'],
-    difficulty: 'Beginner',
-    equipment: ['Bodyweight'],
-    description: 'An isometric core exercise that builds stability and endurance.',
-    instructions: [
-      'Start in a push-up position',
-      'Lower down to your forearms',
-      'Keep your body in a straight line from head to heels',
-      'Hold this position while breathing normally',
-      'Keep your core tight and glutes engaged'
-    ],
-    commonMistakes: [
-      'Sagging hips',
-      'Raising hips too high',
-      'Holding breath',
-      'Looking up instead of down',
-      'Placing forearms too wide'
-    ],
-    safetyTips: [
-      'Start with shorter holds and build up',
-      'Keep breathing throughout',
-      'Stop if you feel lower back pain',
-      'Modify on knees if needed',
-      'Focus on quality over duration'
-    ]
+  constructor() {
+    this.knowledgeBase = this.initializeKnowledgeBase();
+    this.categories = new Set();
+    this.updateCategories();
   }
-};
 
-// =====================================================================================
-// 🥗 NUTRITION DATABASE
-// =====================================================================================
+  private initializeKnowledgeBase(): KnowledgeItem[] {
+    return [
+      // Exercise Form Knowledge
+      {
+        id: 'squat-form',
+        patterns: ['squat', 'squats', 'squatting', 'proper squat', 'squat form'],
+        response: `🏋️ **Perfect Squat Form Guide:**
 
-export const NUTRITION_DATABASE: Record<string, NutritionInfo> = {
-  protein: {
-    recommendation: 'Consume 0.8-1.2g per pound of bodyweight daily for muscle building and recovery',
-    sources: ['Lean meats', 'Fish', 'Eggs', 'Dairy', 'Legumes', 'Protein powder'],
-    timing: 'Spread throughout the day, with emphasis post-workout',
-    benefits: [
-      'Muscle protein synthesis',
-      'Tissue repair and recovery',
-      'Satiety and appetite control',
-      'Metabolic boost'
-    ],
-    dailyIntake: '0.8-1.2g per lb bodyweight',
-    notes: ['Quality matters - choose complete proteins when possible']
-  },
+**Setup:**
+• Stand with feet shoulder-width apart
+• Toes slightly pointed outward (15-30°)
+• Keep your chest up and core engaged
 
-  carbohydrates: {
-    recommendation: 'Primary energy source - time around workouts for optimal performance',
-    sources: ['Whole grains', 'Fruits', 'Vegetables', 'Sweet potatoes', 'Oats'],
-    timing: 'Pre and post-workout, moderate throughout the day',
-    benefits: [
-      'Primary fuel for workouts',
-      'Glycogen replenishment',
-      'Brain function',
-      'Recovery enhancement'
-    ],
-    notes: ['Choose complex carbs over simple sugars for sustained energy']
-  },
+**Movement:**
+• Push your hips back like sitting in a chair
+• Keep knees aligned with your toes
+• Lower until thighs are parallel to ground
+• Drive through your heels to return to standing
 
-  fats: {
-    recommendation: '20-30% of total daily calories from healthy fat sources',
-    sources: ['Nuts', 'Seeds', 'Olive oil', 'Avocado', 'Fatty fish', 'Coconut oil'],
-    timing: 'Throughout the day, avoid immediately pre-workout',
-    benefits: [
-      'Hormone production',
-      'Vitamin absorption',
-      'Satiety',
-      'Brain health'
-    ],
-    notes: ['Focus on unsaturated fats, limit trans fats']
-  }
-};
+**Common Mistakes to Avoid:**
+❌ Knees caving inward
+❌ Leaning too far forward
+❌ Not going deep enough
+❌ Lifting heels off the ground
 
-// =====================================================================================
-// 🏋️ WORKOUT PLANS DATABASE
-// =====================================================================================
+**Pro Tip:** Practice bodyweight squats first to master the movement pattern!`,
+        confidence: 0.95,
+        category: 'exercise_form',
+        tags: ['legs', 'strength', 'compound', 'beginner'],
+        useCount: 0
+      },
+      
+      {
+        id: 'pushup-form',
+        patterns: ['pushup', 'push-up', 'push up', 'pushups', 'proper pushup'],
+        response: `💪 **Perfect Push-Up Form Guide:**
 
-export const WORKOUT_PLANS: Record<string, WorkoutPlan> = {
-  beginner: {
-    level: 'beginner',
-    frequency: '3 days per week (Monday, Wednesday, Friday)',
-    structure: 'Full body workouts focusing on fundamental movement patterns',
-    exercises: [
-      'Bodyweight squats',
-      'Push-ups (modified as needed)',
-      'Planks',
-      'Walking or light cardio',
-      'Basic stretching routine'
-    ],
-    principles: [
-      'Focus on learning proper form over intensity',
-      'Start with bodyweight movements',
-      'Build consistency and routine first',
-      'Progress gradually - add reps before adding weight',
-      'Listen to your body and rest when needed'
-    ],
-    progressionTips: [
-      'Master bodyweight before adding external resistance',
-      'Increase reps and sets before increasing difficulty',
-      'Focus on mind-muscle connection',
-      'Track your workouts to monitor progress'
-    ]
-  },
+**Setup:**
+• Start in plank position
+• Hands slightly wider than shoulders
+• Fingers spread wide for stability
+• Body in straight line from head to heels
 
-  intermediate: {
-    level: 'intermediate',
-    frequency: '4-5 days per week',
-    structure: 'Upper/lower split or push/pull/legs routine',
-    exercises: [
-      'Goblet squats or barbell squats',
-      'Deadlifts (Romanian or conventional)',
-      'Bench press or push-ups',
-      'Rows (dumbbell or barbell)',
-      'Overhead press',
-      'Pull-ups or lat pulldowns'
-    ],
-    principles: [
-      'Add progressive overload through weight, reps, or sets',
-      'Include compound movements as the foundation',
-      'Track your lifts and aim for consistent progression',
-      'Incorporate both strength and endurance training',
-      'Focus on proper form while challenging yourself'
-    ],
-    progressionTips: [
-      'Increase weight by 2.5-5lbs when you can complete all sets with good form',
-      'Add variety to prevent plateaus',
-      'Consider working with a trainer for technique refinement',
-      'Implement periodization in your training'
-    ]
-  },
+**Movement:**
+• Lower your body until chest nearly touches ground
+• Keep elbows at 45° angle to your body
+• Push through palms to return to start
+• Maintain tight core throughout
 
-  advanced: {
-    level: 'advanced',
-    frequency: '5-6 days per week',
-    structure: 'Specialized programs with periodization and specific goals',
-    exercises: [
-      'Competition lifts (squat, bench, deadlift)',
-      'Olympic lifts or derivatives',
-      'Advanced movement patterns',
-      'Accessory work targeting weak points',
-      'Sport-specific training'
-    ],
-    principles: [
-      'Use periodization strategies (linear, undulating, block)',
-      'Focus on specific goals (strength, power, aesthetics)',
-      'Include advanced techniques (drop sets, clusters, etc.)',
-      'Monitor recovery carefully and adjust accordingly',
-      'Regularly assess and adjust your program'
-    ],
-    progressionTips: [
-      'Work with experienced coaches for program design',
-      'Use objective measures to track progress',
-      'Implement deload weeks regularly',
-      'Consider specialized programs for specific goals'
-    ]
-  }
-};
+**Progressions:**
+📈 **Beginner:** Wall push-ups → Incline push-ups → Knee push-ups → Full push-ups
+📈 **Advanced:** Diamond push-ups → Archer push-ups → One-arm push-ups
 
-// =====================================================================================
-// 💪 MOTIVATIONAL CONTENT
-// =====================================================================================
+**Common Mistakes:**
+❌ Sagging hips
+❌ Flaring elbows too wide
+❌ Partial range of motion
+❌ Holding breath`,
+        confidence: 0.95,
+        category: 'exercise_form',
+        tags: ['chest', 'arms', 'bodyweight', 'beginner'],
+        useCount: 0
+      },
 
-export const MOTIVATIONAL_CONTENT: MotivationalContent = {
-  encouragement: {
-    general: 'Every step forward is progress, no matter how small. You\'re building the foundation for a stronger, healthier you!',
-    struggling: 'Every champion was once a beginner who refused to give up. Your struggles today are building the mental and physical strength you\'ll need for tomorrow.',
-    plateau: 'Plateaus aren\'t roadblocks - they\'re launching pads! Your body has adapted to your current routine, which means it\'s time to challenge yourself in new ways.',
-    comeback: 'Comebacks are always stronger than setbacks. You have experience now that you didn\'t have before. Use that knowledge and be patient with your body.',
-    beginner: 'Welcome to the beginning of an amazing journey! Every expert was once a beginner. Focus on building habits, not perfection.',
-    advanced: 'Your dedication has brought you this far! Remember that even at your level, the fundamentals matter most.'
-  },
+      {
+        id: 'deadlift-form',
+        patterns: ['deadlift', 'deadlifts', 'deadlifting', 'proper deadlift'],
+        response: `⚡ **Perfect Deadlift Form Guide:**
 
-  daily_quotes: [
-    'The only bad workout is the one that didn\'t happen.',
-    'Your body can do it. It\'s your mind you need to convince.',
-    'Progress, not perfection, is the goal.',
-    'Strong is the new skinny.',
-    'You are your only limit.',
-    'The pain you feel today will be the strength you feel tomorrow.',
-    'Champions train, losers complain.',
-    'Your future self will thank you.',
-    'Consistency is the mother of mastery.',
-    'Every rep counts, every day matters.',
-    'Discipline is choosing between what you want now and what you want most.',
-    'The hardest part is showing up.'
-  ],
+**Setup:**
+• Bar over mid-foot, close to shins
+• Feet hip-width apart
+• Grip bar with hands just outside legs
+• Shoulders over the bar
 
-  success_principles: [
-    'Consistency beats perfection every time',
-    'Focus on systems and habits, not just goals',
-    'Progress is not always linear - expect ups and downs',
-    'Small improvements compound over time',
-    'Listen to your body and rest when needed'
-  ],
+**Movement:**
+• Drive through heels and push floor away
+• Keep bar close to your body
+• Hips and shoulders rise together
+• Stand tall with shoulders back
 
-  mindset_tips: [
-    'View challenges as opportunities to grow stronger',
-    'Compare yourself to who you were yesterday, not to others',
-    'Focus on what your body can do, not just how it looks',
-    'Treat setbacks as learning experiences',
-    'Remember that discipline is self-love in action'
-  ]
-};
+**Key Points:**
+✅ Neutral spine throughout
+✅ Chest up, shoulders back
+✅ Core braced like someone's going to punch you
+✅ Controlled descent
 
-// =====================================================================================
-// 🔧 COMPLETE UTILITY FUNCTIONS
-// =====================================================================================
+**Safety First:**
+⚠️ Start with light weight to master form
+⚠️ Never round your back
+⚠️ If form breaks down, stop the set`,
+        confidence: 0.95,
+        category: 'exercise_form',
+        tags: ['back', 'legs', 'strength', 'compound'],
+        useCount: 0
+      },
 
-export class LocalKnowledgeUtils {
-  static checkSafetyFlags(message: string): string[] {
-    const redFlags = [
-      'chest pain', 'severe shortness of breath', 'dizziness', 'fainting', 
-      'severe joint pain', 'sharp pain', 'numbness', 'tingling'
+      // Nutrition Knowledge
+      {
+        id: 'pre-workout-nutrition',
+        patterns: ['pre workout food', 'what to eat before workout', 'pre-workout meal', 'food before exercise'],
+        response: `🍎 **Pre-Workout Nutrition Guide:**
+
+**Timing Matters:**
+• **2-3 hours before:** Full meal with carbs + protein
+• **30-60 minutes before:** Light snack, mostly carbs
+
+**Best Pre-Workout Foods:**
+🥖 **Carbs for Energy:**
+• Banana with a small amount of nut butter
+• Oatmeal with berries
+• Toast with honey
+• Apple slices
+
+🥛 **Light Protein Options:**
+• Greek yogurt
+• Small protein shake
+• Handful of nuts
+
+**What to Avoid:**
+❌ High fat/fiber foods (slow digestion)
+❌ Large meals right before training
+❌ Foods that cause stomach upset
+❌ Too much caffeine on empty stomach
+
+**Hydration:** Drink 16-20oz water 2-3 hours before, then 8oz 15-20 minutes before exercise.`,
+        confidence: 0.9,
+        category: 'nutrition',
+        tags: ['pre-workout', 'meal-timing', 'energy'],
+        useCount: 0
+      },
+
+      {
+        id: 'post-workout-nutrition',
+        patterns: ['post workout food', 'what to eat after workout', 'post-workout meal', 'recovery food'],
+        response: `🥗 **Post-Workout Recovery Nutrition:**
+
+**The Golden Window:** 30-60 minutes post-workout for optimal recovery
+
+**Recovery Formula:**
+🔥 **Protein (20-40g):** Repair and build muscle
+🔥 **Carbs (30-60g):** Replenish energy stores
+🔥 **Fluids:** Replace sweat losses
+
+**Great Post-Workout Meals:**
+• Protein shake with banana
+• Greek yogurt with berries and granola
+• Chicken and sweet potato
+• Tuna and crackers
+• Chocolate milk (seriously!)
+• Quinoa bowl with vegetables and protein
+
+**Hydration Recovery:**
+💧 Drink 16-24oz fluid for every pound lost during exercise
+💧 Include electrolytes if you sweat heavily
+💧 Monitor urine color (pale yellow = good hydration)
+
+**Pro Tip:** Don't stress if you can't eat immediately - focus on getting quality nutrition within 2 hours!`,
+        confidence: 0.9,
+        category: 'nutrition',
+        tags: ['post-workout', 'recovery', 'protein'],
+        useCount: 0
+      },
+
+      // Motivation and Mental Health
+      {
+        id: 'motivation-general',
+        patterns: ['motivation', 'motivated', 'give up', 'quit', 'discouraged', 'not motivated'],
+        response: `🔥 **Motivation Boost Incoming!**
+
+**Remember Why You Started:**
+💪 You're stronger than you think
+🎯 Every workout is progress, no matter how small
+🏆 Consistency beats perfection every time
+⭐ You're building a better version of yourself
+
+**When Motivation Fails, Discipline Saves You:**
+📅 Schedule workouts like important appointments
+📝 Track your progress (you're doing better than you think!)
+👥 Find an accountability partner
+🎵 Create an energizing playlist
+
+**Reframe Your Mindset:**
+• "I don't have time" → "I haven't made it a priority"
+• "I'm not good at this" → "I'm still learning"
+• "I'll start Monday" → "I'll start with 10 minutes right now"
+
+**Quick Motivation Hack:** Do just 5 minutes. Often, starting is the hardest part!
+
+**You've got this!** 💪✨`,
+        confidence: 0.85,
+        category: 'motivation',
+        tags: ['mindset', 'discipline', 'consistency'],
+        useCount: 0
+      },
+
+      // Workout Planning
+      {
+        id: 'beginner-workout-plan',
+        patterns: ['beginner workout', 'start working out', 'workout plan', 'new to fitness'],
+        response: `🌟 **Beginner's Workout Plan - Week 1-4:**
+
+**Schedule:** 3-4 days per week, rest days between workouts
+
+**Full Body Workout A:**
+• Bodyweight Squats: 2 sets × 8-12 reps
+• Push-ups (modified if needed): 2 sets × 5-10 reps
+• Plank: 2 sets × 15-30 seconds
+• Walking/Marching: 10-15 minutes
+
+**Full Body Workout B:**
+• Glute Bridges: 2 sets × 10-15 reps
+• Wall Push-ups: 2 sets × 8-12 reps
+• Dead Bug: 2 sets × 5 each side
+• Stairs/Step-ups: 10-15 minutes
+
+**Week 1-2:** Focus on form, take your time
+**Week 3-4:** Increase reps or add 1 more set
+
+**Golden Rules:**
+✅ Quality over quantity
+✅ Listen to your body
+✅ Progress gradually
+✅ Celebrate small wins!
+
+Ready to level up from here? Let me know!`,
+        confidence: 0.9,
+        category: 'workout_planning',
+        tags: ['beginner', 'full-body', 'bodyweight'],
+        useCount: 0
+      },
+
+      // Safety and Injury Prevention
+      {
+        id: 'workout-safety',
+        patterns: ['safety', 'injury', 'hurt', 'pain', 'safe workout'],
+        response: `⚠️ **Workout Safety First!**
+
+**Before You Start:**
+🔥 Always warm up (5-10 minutes light activity)
+🎯 Learn proper form before adding weight
+💧 Stay hydrated throughout
+👂 Listen to your body
+
+**Red Flags - Stop Immediately:**
+❌ Sharp, shooting pain
+❌ Pain that gets worse during exercise
+❌ Dizziness or nausea
+❌ Chest pain or trouble breathing
+
+**Good Pain vs. Bad Pain:**
+✅ **Good:** Muscle burn, mild soreness next day
+❌ **Bad:** Joint pain, sharp pain, persistent pain
+
+**Injury Prevention:**
+• Progress gradually (10% rule)
+• Include rest days
+• Focus on mobility and flexibility
+• Get adequate sleep and nutrition
+
+**When in Doubt:** Consult a healthcare provider or certified trainer.
+
+**Remember:** It's better to take a day off than to take weeks off due to injury!`,
+        confidence: 0.95,
+        category: 'safety',
+        tags: ['injury-prevention', 'pain', 'emergency'],
+        useCount: 0
+      }
     ];
-    const normalizedMessage = message.toLowerCase();
-    return redFlags.filter(flag => normalizedMessage.includes(flag));
   }
 
-  static getExercise(name: string): ExerciseData | null {
-    const normalizedName = name.toLowerCase().trim();
-    return EXERCISE_DATABASE[normalizedName] || null;
+  private updateCategories(): void {
+    this.categories.clear();
+    this.knowledgeBase.forEach(item => {
+      this.categories.add(item.category);
+    });
   }
 
-  static findExercisesByMuscle(muscle: string): ExerciseData[] {
-    const normalizedMuscle = muscle.toLowerCase();
-    return Object.values(EXERCISE_DATABASE).filter(exercise =>
-      exercise.muscles.some(m => m.toLowerCase().includes(normalizedMuscle))
-    );
-  }
+  async findResponse(message: string): Promise<LocalResponse> {
+    const messageWords = message.toLowerCase().split(/\s+/);
+    let bestMatch: KnowledgeItem | null = null;
+    let highestScore = 0;
 
-  static getNutritionInfo(macronutrient: string): NutritionInfo | null {
-    const normalizedMacro = macronutrient.toLowerCase();
-    return NUTRITION_DATABASE[normalizedMacro] || null;
-  }
+    for (const item of this.knowledgeBase) {
+      let score = 0;
+      
+      // Check pattern matches
+      for (const pattern of item.patterns) {
+        const patternWords = pattern.toLowerCase().split(/\s+/);
+        
+        // Exact phrase match (higher score)
+        if (message.toLowerCase().includes(pattern.toLowerCase())) {
+          score += item.confidence * 2;
+        }
+        
+        // Word overlap scoring
+        const matchCount = patternWords.filter(patternWord =>
+          messageWords.some(messageWord => 
+            messageWord.includes(patternWord) || patternWord.includes(messageWord)
+          )
+        ).length;
+        
+        const overlapRatio = matchCount / patternWords.length;
+        score += overlapRatio * item.confidence;
+      }
 
-  static getRandomMotivation(): string {
-    const quotes = MOTIVATIONAL_CONTENT.daily_quotes;
-    return quotes[Math.floor(Math.random() * quotes.length)] || 'Keep pushing forward! 💪';
-  }
+      // Boost score for high-priority categories
+      if (item.category === 'safety' && score > 0) {
+        score *= 1.5;
+      }
 
-  static getMotivationByState(state: string): string {
-    const normalizedState = state.toLowerCase();
-    const encouragement = MOTIVATIONAL_CONTENT.encouragement[normalizedState];
-    return encouragement || MOTIVATIONAL_CONTENT.encouragement.general;
-  }
-
-  static getWorkoutPlan(level: string): WorkoutPlan | null {
-    const normalizedLevel = level.toLowerCase() as 'beginner' | 'intermediate' | 'advanced';
-    return WORKOUT_PLANS[normalizedLevel] || null;
-  }
-
-  static validateInput(input: string): { isValid: boolean; message?: string } {
-    if (!input || input.trim().length === 0) {
-      return { isValid: false, message: 'Input cannot be empty' };
+      if (score > highestScore) {
+        highestScore = score;
+        bestMatch = item;
+      }
     }
-    
-    if (input.length > 5000) {
-      return { isValid: false, message: 'Input is too long' };
+
+    if (bestMatch && highestScore > 0.3) {
+      // Update usage statistics
+      bestMatch.useCount = (bestMatch.useCount || 0) + 1;
+      bestMatch.lastUsed = Date.now();
+
+      return {
+        content: bestMatch.response,
+        confidence: Math.min(highestScore, 1.0),
+        category: bestMatch.category,
+        source: 'local_knowledge'
+      };
     }
+
+    return {
+      content: '',
+      confidence: 0,
+      category: 'unknown',
+      source: 'local_knowledge'
+    };
+  }
+
+  getKnowledgeCount(): number {
+    return this.knowledgeBase.length;
+  }
+
+  getCategories(): string[] {
+    return Array.from(this.categories);
+  }
+
+  addKnowledgeItem(item: Omit<KnowledgeItem, 'id' | 'useCount' | 'lastUsed'>): void {
+    const newItem: KnowledgeItem = {
+      ...item,
+      id: `custom_${Date.now()}`,
+      useCount: 0,
+      lastUsed: undefined
+    };
     
-    // Check for potential harmful content
-    const dangerousPatterns = [
-      /<script/i,
-      /javascript:/i,
-      /data:text\/html/i
-    ];
-    
-    if (dangerousPatterns.some(pattern => pattern.test(input))) {
-      return { isValid: false, message: 'Input contains potentially harmful content' };
+    this.knowledgeBase.push(newItem);
+    this.updateCategories();
+  }
+
+  updateKnowledgeItem(id: string, updates: Partial<KnowledgeItem>): boolean {
+    const index = this.knowledgeBase.findIndex(item => item.id === id);
+    if (index !== -1) {
+      this.knowledgeBase[index] = { ...this.knowledgeBase[index], ...updates };
+      this.updateCategories();
+      return true;
     }
-    
-    return { isValid: true };
+    return false;
   }
 
-  // Additional utility methods for comprehensive functionality
-  static getAllExercises(): ExerciseData[] {
-    return Object.values(EXERCISE_DATABASE);
+  removeKnowledgeItem(id: string): boolean {
+    const index = this.knowledgeBase.findIndex(item => item.id === id);
+    if (index !== -1) {
+      this.knowledgeBase.splice(index, 1);
+      this.updateCategories();
+      return true;
+    }
+    return false;
   }
 
-  static getExercisesByDifficulty(difficulty: 'Beginner' | 'Intermediate' | 'Advanced'): ExerciseData[] {
-    return Object.values(EXERCISE_DATABASE).filter(exercise => exercise.difficulty === difficulty);
+  searchKnowledge(query: string, category?: string): KnowledgeItem[] {
+    const results = this.knowledgeBase.filter(item => {
+      const matchesCategory = !category || item.category === category;
+      const matchesQuery = item.patterns.some(pattern =>
+        pattern.toLowerCase().includes(query.toLowerCase())
+      ) || item.response.toLowerCase().includes(query.toLowerCase());
+      
+      return matchesCategory && matchesQuery;
+    });
+
+    return results.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
   }
 
-  static searchExercises(query: string): ExerciseData[] {
-    const normalizedQuery = query.toLowerCase();
-    return Object.values(EXERCISE_DATABASE).filter(exercise =>
-      exercise.name.toLowerCase().includes(normalizedQuery) ||
-      exercise.muscles.some(muscle => muscle.toLowerCase().includes(normalizedQuery)) ||
-      exercise.equipment.some(equipment => equipment.toLowerCase().includes(normalizedQuery))
-    );
+  getStatistics() {
+    const totalItems = this.knowledgeBase.length;
+    const categoryCounts = new Map<string, number>();
+    let totalUsage = 0;
+
+    this.knowledgeBase.forEach(item => {
+      const count = categoryCounts.get(item.category) || 0;
+      categoryCounts.set(item.category, count + 1);
+      totalUsage += item.useCount || 0;
+    });
+
+    const mostUsedItems = this.knowledgeBase
+      .filter(item => (item.useCount || 0) > 0)
+      .sort((a, b) => (b.useCount || 0) - (a.useCount || 0))
+      .slice(0, 5);
+
+    return {
+      totalItems,
+      categoryCounts: Object.fromEntries(categoryCounts),
+      totalUsage,
+      mostUsedItems: mostUsedItems.map(item => ({
+        id: item.id,
+        category: item.category,
+        useCount: item.useCount,
+        patterns: item.patterns.slice(0, 2) // First 2 patterns only
+      }))
+    };
   }
 
-  static getRandomWorkoutTip(): string {
-    const tips = [
-      'Remember to warm up before every workout!',
-      'Proper form is more important than heavy weight.',
-      'Stay hydrated throughout your workout.',
-      'Don\'t forget to cool down and stretch after exercising.',
-      'Listen to your body - rest when you need it.',
-      'Progressive overload is key to continuous improvement.',
-      'Compound movements give you the most bang for your buck.',
-      'Consistency beats intensity every time.'
-    ];
-    return tips[Math.floor(Math.random() * tips.length)];
+  exportKnowledge(): string {
+    return JSON.stringify(this.knowledgeBase, null, 2);
+  }
+
+  importKnowledge(jsonData: string): boolean {
+    try {
+      const imported = JSON.parse(jsonData);
+      if (Array.isArray(imported)) {
+        this.knowledgeBase = imported;
+        this.updateCategories();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to import knowledge:', error);
+      return false;
+    }
   }
 }
 
-// =====================================================================================
-// 📤 EXPORTS
-// =====================================================================================
+export const LocalKnowledgeUtils = {
+  addKnowledge: (knowledge: LocalKnowledge, item: Omit<KnowledgeItem, 'id' | 'useCount' | 'lastUsed'>) => {
+    knowledge.addKnowledgeItem(item);
+  },
+  
+  updateKnowledge: (knowledge: LocalKnowledge, id: string, item: Partial<KnowledgeItem>) => {
+    return knowledge.updateKnowledgeItem(id, item);
+  },
 
-export const LocalKnowledge = {
-  EXERCISE_DATABASE,
-  NUTRITION_DATABASE,
-  WORKOUT_PLANS,
-  MOTIVATIONAL_CONTENT,
-  utils: LocalKnowledgeUtils
+  searchByCategory: (knowledge: LocalKnowledge, category: string) => {
+    return knowledge.searchKnowledge('', category);
+  },
+
+  getPopularKnowledge: (knowledge: LocalKnowledge, limit: number = 10) => {
+    return knowledge.searchKnowledge('').slice(0, limit);
+  }
 };
-
-export const utils = LocalKnowledgeUtils;
-export default LocalKnowledge;
