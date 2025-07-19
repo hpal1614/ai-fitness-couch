@@ -4,7 +4,7 @@
 // Created by Himanshu (himanshu1614)
 // Handles: API calling, smart routing, local knowledge integration, caching
 // Features: Cost optimization, fallback systems, intelligent responses
-// FILE LOCATION: src/utils/aiService.js
+// FILE LOCATION: src/utils/aiService.ts
 
 // Add global error handler for debugging white screen issues
 if (typeof window !== 'undefined') {
@@ -14,7 +14,7 @@ if (typeof window !== 'undefined') {
     if (!document.getElementById('global-js-error-overlay')) {
       const overlay = document.createElement('div');
       overlay.id = 'global-js-error-overlay';
-      overlay.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,0,0,0.1);color:#b91c1c;z-index:99999;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-family:monospace;';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,0,0,0.1);color:#b91c1c;z-index:99999;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-family:monospace;';
       overlay.innerText = 'A JavaScript error occurred: ' + event.message;
       document.body.appendChild(overlay);
     }
@@ -24,25 +24,118 @@ if (typeof window !== 'undefined') {
     if (!document.getElementById('global-js-error-overlay')) {
       const overlay = document.createElement('div');
       overlay.id = 'global-js-error-overlay';
-      overlay.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,0,0,0.1);color:#b91c1c;z-index:99999;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-family:monospace;';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,0,0,0.1);color:#b91c1c;z-index:99999;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-family:monospace;';
       overlay.innerText = 'A JS promise error occurred: ' + event.reason;
       document.body.appendChild(overlay);
     }
   });
 }
 
-import { API_PROVIDERS, ROUTING_RULES, ERROR_MESSAGES, RETRY_CONFIG } from '../config/apiConfig.js';
-import LocalKnowledge, { LocalKnowledgeUtils } from './localKnowledge.js';
+// Import from TypeScript LLM config and local knowledge
+import config, { OPTIMAL_API_PROVIDERS } from '../config/llmConfig';
+import LocalKnowledgeDB, { LocalKnowledgeUtils, type ExerciseData, type NutritionInfo, type MealTimingInfo } from './localKnowledge';
+
+// =====================================================================================
+// 🔧 TYPE DEFINITIONS
+// =====================================================================================
+
+interface MessageAnalysis {
+  originalMessage: string;
+  intent: 'safety' | 'exercise' | 'nutrition' | 'motivation' | 'planning' | 'general';
+  topics: string[];
+  urgency: 'normal' | 'high';
+  needsAPI: boolean;
+  confidence: number;
+}
+
+interface AIResponse {
+  content: string;
+  source: string;
+  confidence: number;
+  fromCache?: boolean;
+  provider?: string;
+  urgency?: string;
+  error?: string;
+}
+
+interface ProviderConfig {
+  name: string;
+  baseUrl: string;
+  apiKey: string;
+  models: Record<string, string>;
+  limits: {
+    requestsPerDay?: number;
+    requestsPerMinute?: number;
+    tokensPerMinute?: number;
+    resetTime?: string;
+    maxTokens?: number;
+  };
+  priority: number;
+  cost: number;
+  quality: number;
+  available: boolean;
+  timeout: number;
+  retries: number;
+  features: string[];
+  specialties: string[];
+  currentUsage: number;
+  lastReset: number;
+  isAvailable: boolean;
+  errorCount: number;
+  avgResponseTime: number;
+}
+
+interface LocalKnowledgeType {
+  EXERCISE_DATABASE?: any;
+  NUTRITION_DATABASE?: any;
+  MOTIVATIONAL_CONTENT?: any;
+  SAFETY_PROTOCOLS?: any;
+}
+
+// Remove mock data since we're importing the real LocalKnowledge
 
 // =====================================================================================
 // 🧠 MAIN AI SERVICE CLASS
 // =====================================================================================
 
 export class AIService {
+  private localKnowledge: typeof LocalKnowledgeDB;
+  private utils: typeof LocalKnowledgeUtils;
+  private responseCache: Map<string, AIResponse>;
+  private conversationHistory: Map<string, any>;
+  private analytics: {
+    totalRequests: number;
+    localResponses: number;
+    cachedResponses: number;
+    apiResponses: number;
+    errors: number;
+  };
+  private providers: Map<string, ProviderConfig>;
+
+  constructor() {
+    this.localKnowledge = LocalKnowledgeDB;
+    this.utils = LocalKnowledgeUtils;
+    this.responseCache = new Map();
+    this.conversationHistory = new Map();
+    this.analytics = {
+      totalRequests: 0,
+      localResponses: 0,
+      cachedResponses: 0,
+      apiResponses: 0,
+      errors: 0
+    };
+    this.providers = AIService.initializeProviders();
+    console.log('🚀 AI Service initialized with local knowledge and smart routing');
+  }
+
   // =====================================================================================
   // 🎯 MAIN MESSAGE PROCESSING (SMART ROUTING)
   // =====================================================================================
-  async processMessage(message, userId = 'default', options = {}) {
+  async processMessage(
+    message: string,
+    userId: string = 'default',
+    options: { bypassCache?: boolean } = {}
+  ): Promise<AIResponse> {
     this.analytics.totalRequests++;
     try {
       // Step 1: Analyze the message
@@ -76,7 +169,7 @@ export class AIService {
       this.cacheResponse(message, aiResponse);
       return aiResponse;
 
-    } catch (error) {
+    } catch (error: any) {
       this.analytics.errors++;
       console.error('AI Service error:', error);
       return this.getFallbackResponse(message, error);
@@ -86,9 +179,9 @@ export class AIService {
   // =====================================================================================
   // 📊 MESSAGE ANALYSIS (INTENT DETECTION)
   // =====================================================================================
-  analyzeMessage(message) {
+  analyzeMessage(message: string): MessageAnalysis {
     const text = message.toLowerCase();
-    const analysis = {
+    const analysis: MessageAnalysis = {
       originalMessage: message,
       intent: 'general',
       topics: [],
@@ -146,29 +239,15 @@ export class AIService {
 
     return analysis;
   }
-  constructor() {
-    this.localKnowledge = LocalKnowledge;
-    this.utils = LocalKnowledgeUtils;
-    this.responseCache = new Map();
-    this.conversationHistory = new Map();
-    this.analytics = {
-      totalRequests: 0,
-      localResponses: 0,
-      cachedResponses: 0,
-      apiResponses: 0,
-      errors: 0
-    };
-    this.providers = AIService.initializeProviders();
-    console.log('🚀 AI Service initialized with local knowledge and smart routing');
-  }
+
   // =====================================================================================
   // 🔧 PROVIDER INITIALIZATION (STATIC)
   // =====================================================================================
-  static initializeProviders() {
-    const providers = new Map();
-    Object.entries(API_PROVIDERS).forEach(([name, config]) => {
+  static initializeProviders(): Map<string, ProviderConfig> {
+    const providers = new Map<string, ProviderConfig>();
+    Object.entries(OPTIMAL_API_PROVIDERS).forEach(([name, config]) => {
       providers.set(name, {
-        ...config,
+        ...(config as any),
         currentUsage: 0,
         lastReset: Date.now(),
         isAvailable: true,
@@ -183,7 +262,7 @@ export class AIService {
   // 🏠 LOCAL KNOWLEDGE HANDLING (70% of requests)
   // =====================================================================================
 
-  canHandleLocally(analysis) {
+  canHandleLocally(analysis: MessageAnalysis): boolean {
     // Always handle safety locally for immediate response
     if (analysis.intent === 'safety') return true;
     
@@ -203,26 +282,20 @@ export class AIService {
     return simplePatterns.some(pattern => pattern.test(analysis.originalMessage));
   }
 
-  async handleWithLocalKnowledge(analysis) {
+  async handleWithLocalKnowledge(analysis: MessageAnalysis): Promise<AIResponse | null> {
     const { intent, originalMessage } = analysis;
-    
     try {
       switch (intent) {
         case 'safety':
           return this.handleSafety(originalMessage);
-          
         case 'exercise':
           return this.handleExercise(originalMessage);
-          
         case 'nutrition':
           return this.handleNutrition(originalMessage);
-          
         case 'motivation':
           return this.handleMotivation(originalMessage);
-          
         case 'planning':
           return this.handlePlanning(originalMessage);
-          
         default:
           return this.handleGeneral(originalMessage);
       }
@@ -236,7 +309,7 @@ export class AIService {
   // 🛡️ SAFETY HANDLER (IMMEDIATE RESPONSE)
   // =====================================================================================
 
-  handleSafety(message) {
+  handleSafety(message: string): AIResponse {
     const redFlags = this.utils.checkSafetyFlags(message);
     
     if (redFlags.length > 0) {
@@ -279,7 +352,7 @@ What specific safety questions can I help you with?`,
   // 💪 EXERCISE HANDLER
   // =====================================================================================
 
-  handleExercise(message) {
+  handleExercise(message: string): AIResponse {
     const text = message.toLowerCase();
     
     // Check for specific exercise names
@@ -322,12 +395,12 @@ What specific exercise would you like help with? Just ask about any movement!`,
     };
   }
 
-  findExerciseInMessage(text) {
+  findExerciseInMessage(text: string): string | undefined {
     const exerciseNames = ['squat', 'deadlift', 'bench press', 'bicep curl', 'tricep extension', 'plank'];
     return exerciseNames.find(exercise => text.includes(exercise.replace(' ', ' ')));
   }
 
-  getExerciseDetails(exerciseName) {
+  getExerciseDetails(exerciseName: string): AIResponse {
     const exercise = this.utils.getExercise(exerciseName);
     
     if (!exercise) {
@@ -348,13 +421,13 @@ What specific exercise would you like help with? Just ask about any movement!`,
 **Description:** ${exercise.description}
 
 **Instructions:**
-${exercise.instructions.map((step, i) => `${i + 1}. ${step}`).join('\n')}
+${exercise.instructions.map((step: string, i: number) => `${i + 1}. ${step}`).join('\n')}
 
 **Common Mistakes to Avoid:**
-${exercise.commonMistakes.map(mistake => `❌ ${mistake}`).join('\n')}
+${exercise.commonMistakes.map((mistake: string) => `❌ ${mistake}`).join('\n')}
 
 **Safety Tips:**
-${exercise.safetyTips.map(tip => `✅ ${tip}`).join('\n')}
+${exercise.safetyTips.map((tip: string) => `✅ ${tip}`).join('\n')}
 
 Need help with progressions or modifications? Just ask! 🚀`,
       source: 'exercise_database',
@@ -362,7 +435,7 @@ Need help with progressions or modifications? Just ask! 🚀`,
     };
   }
 
-  getExercisesForMuscle(muscle) {
+  getExercisesForMuscle(muscle: string): AIResponse {
     const exercises = this.utils.findExercisesByMuscle(muscle);
     
     if (exercises.length === 0) {
@@ -373,7 +446,7 @@ Need help with progressions or modifications? Just ask! 🚀`,
       };
     }
     
-    const exerciseList = exercises.slice(0, 3).map(ex => `**${ex.name}** - ${ex.description}`).join('\n\n');
+    const exerciseList = exercises.slice(0, 3).map((ex: any) => `**${ex.name}** - ${ex.description}`).join('\n\n');
     
     return {
       content: `💪 **Best Exercises for ${muscle.toUpperCase()}** 💪
@@ -386,7 +459,7 @@ Want detailed instructions for any of these? Just ask about the specific exercis
     };
   }
 
-  getFormGuidance(text) {
+  getFormGuidance(text: string): AIResponse {
     return {
       content: `🎯 **Perfect Form Guidelines** 🎯
 
@@ -413,7 +486,7 @@ Which specific exercise form would you like me to break down in detail?`,
   // 🥗 NUTRITION HANDLER
   // =====================================================================================
 
-  handleNutrition(message) {
+  handleNutrition(message: string): AIResponse {
     const text = message.toLowerCase();
     
     // Check for specific macronutrients
@@ -472,7 +545,7 @@ What specific nutrition topic interests you?`,
     };
   }
 
-  getNutritionDetails(macronutrient) {
+  getNutritionDetails(macronutrient: string): AIResponse {
     const info = this.utils.getNutritionInfo(macronutrient);
     
     if (!info) {
@@ -486,15 +559,15 @@ What specific nutrition topic interests you?`,
     return {
       content: `🥗 **${macronutrient.toUpperCase()} GUIDE** 🥗
 
-**Daily Recommendation:** ${info.recommendation}
+**Daily Recommendation:** ${(info as any).recommendation}
 
 **Best Sources:**
-${info.sources.map(source => `• ${source}`).join('\n')}
+${(info as any).sources.map((source: string) => `• ${source}`).join('\n')}
 
-**Optimal Timing:** ${info.timing}
+**Optimal Timing:** ${(info as any).timing}
 
 **Key Benefits:**
-${info.benefits.map(benefit => `✅ ${benefit}`).join('\n')}
+${(info as any).benefits.map((benefit: string) => `✅ ${benefit}`).join('\n')}
 
 Need help planning meals around this? Just ask! 🍽️`,
       source: 'nutrition_database',
@@ -502,8 +575,16 @@ Need help planning meals around this? Just ask! 🍽️`,
     };
   }
 
-  getMealTimingAdvice(timing) {
+  getMealTimingAdvice(timing: 'pre_workout' | 'post_workout'): AIResponse {
     const timingInfo = this.localKnowledge.NUTRITION_DATABASE.meal_timing[timing];
+    
+    if (!timingInfo) {
+      return {
+        content: 'I don\'t have specific timing information available right now.',
+        source: 'local_knowledge',
+        confidence: 0.3
+      };
+    }
     
     return {
       content: `⏰ **${timing.replace('_', ' ').toUpperCase()} NUTRITION** ⏰
@@ -512,18 +593,18 @@ Need help planning meals around this? Just ask! 🍽️`,
 **Focus:** ${timingInfo.focus}
 
 **Great Options:**
-${timingInfo.examples.map(example => `• ${example}`).join('\n')}
+${timingInfo.examples.map((example: string) => `• ${example}`).join('\n')}
 
 ${timingInfo.avoid ? `**Avoid:** ${timingInfo.avoid}` : ''}
 ${timingInfo.ratio ? `**Optimal Ratio:** ${timingInfo.ratio}` : ''}
 
 This will optimize your energy and recovery! 🚀`,
-      source: 'nutrition_timing',
+      source: 'local_knowledge',
       confidence: 0.9
     };
   }
 
-  getHydrationAdvice() {
+  getHydrationAdvice(): AIResponse {
     const hydration = this.localKnowledge.NUTRITION_DATABASE.hydration;
     
     return {
@@ -533,7 +614,7 @@ This will optimize your energy and recovery! 🚀`,
 **During Exercise:** ${hydration.exercise}
 
 **Hydration Indicators:**
-${hydration.indicators.map(indicator => `• ${indicator}`).join('\n')}
+${hydration.indicators.map((indicator: string) => `• ${indicator}`).join('\n')}
 
 **Electrolyte Notes:**
 • **Sodium:** ${hydration.electrolytes.sodium}
@@ -541,12 +622,12 @@ ${hydration.indicators.map(indicator => `• ${indicator}`).join('\n')}
 • **Magnesium:** ${hydration.electrolytes.magnesium}
 
 Stay hydrated for optimal performance! 💪`,
-      source: 'hydration_guide',
+      source: 'local_knowledge',
       confidence: 0.9
     };
   }
 
-  getSupplementAdvice() {
+  getSupplementAdvice(): AIResponse {
     const supplements = this.localKnowledge.NUTRITION_DATABASE.supplementation;
     
     return {
@@ -558,10 +639,10 @@ ${Object.entries(supplements.evidence_based).map(([name, info]) =>
 ).join('\n\n')}
 
 **NOT Recommended:**
-${supplements.not_recommended.map(item => `❌ ${item}`).join('\n')}
+${supplements.not_recommended.map((item: string) => `❌ ${item}`).join('\n')}
 
 **Remember:** Supplements supplement a good diet, they don't replace it! Focus on whole foods first. 🥗`,
-      source: 'supplement_guide',
+      source: 'local_knowledge',
       confidence: 0.9
     };
   }
@@ -570,10 +651,8 @@ ${supplements.not_recommended.map(item => `❌ ${item}`).join('\n')}
   // 🔥 MOTIVATION HANDLER
   // =====================================================================================
 
-  handleMotivation(message) {
+  handleMotivation(message: string): AIResponse {
     const text = message.toLowerCase();
-    
-    // Detect emotional state
     let emotionalState = 'general';
     if (text.includes('struggling') || text.includes('hard') || text.includes('difficult')) {
       emotionalState = 'struggling';
@@ -583,9 +662,10 @@ ${supplements.not_recommended.map(item => `❌ ${item}`).join('\n')}
       emotionalState = 'comeback';
     }
     
-    // Get specific motivation
-    const specificMotivation = this.localKnowledge.MOTIVATIONAL_CONTENT.encouragement[emotionalState] || 
-                              this.localKnowledge.MOTIVATIONAL_CONTENT.daily_quotes;
+    // Use correct property access with proper typing
+    const encouragementContent = this.localKnowledge.MOTIVATIONAL_CONTENT.encouragement;
+    const specificMotivation = encouragementContent[emotionalState as keyof typeof encouragementContent] || 
+                              encouragementContent.general;
     
     const motivation = Array.isArray(specificMotivation) ? 
                       specificMotivation[Math.floor(Math.random() * specificMotivation.length)] :
@@ -609,7 +689,7 @@ ${motivation}
 4. Remember your "why"
 
 You've got this, champion! What's one thing you can do right now to move forward? 🚀`,
-      source: 'motivational_content',
+      source: 'local_knowledge',
       confidence: 0.9
     };
   }
@@ -618,11 +698,11 @@ You've got this, champion! What's one thing you can do right now to move forward
   // 📋 PLANNING HANDLER
   // =====================================================================================
 
-  handlePlanning(message) {
+  handlePlanning(message: string): AIResponse {
     const text = message.toLowerCase();
     
     // Detect fitness level
-    let level = 'beginner';
+    let level: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
     if (text.includes('intermediate') || text.includes('experienced')) {
       level = 'intermediate';
     } else if (text.includes('advanced') || text.includes('expert')) {
@@ -644,7 +724,7 @@ You've got this, champion! What's one thing you can do right now to move forward
     return this.generateWorkoutPlan(level, goal);
   }
 
-  generateWorkoutPlan(level, goal) {
+  generateWorkoutPlan(level: 'beginner' | 'intermediate' | 'advanced', goal: string): AIResponse {
     const plans = {
       beginner: {
         frequency: '3 days per week',
@@ -662,7 +742,6 @@ You've got this, champion! What's one thing you can do right now to move forward
         exercises: ['Barbell movements', 'Olympic lifts', 'Advanced techniques']
       }
     };
-    
     const plan = plans[level];
     
     return {
@@ -693,7 +772,11 @@ Want me to detail any specific exercises or create a weekly schedule? 💪`,
   // 🌐 AI API HANDLING (30% of requests)
   // =====================================================================================
 
-  async handleWithAI(analysis, userId, options = {}) {
+  async handleWithAI(
+    analysis: MessageAnalysis,
+    userId: string,
+    options: { bypassCache?: boolean } = {}
+  ): Promise<AIResponse> {
     const { intent, originalMessage, needsAPI } = analysis;
     
     if (!needsAPI) {
@@ -715,7 +798,7 @@ Want me to detail any specific exercises or create a weekly schedule? 💪`,
       return {
         content: response.content,
         source: 'ai_api',
-        provider: provider.name,
+        provider: response.provider,
         confidence: 0.9
       };
       
@@ -725,7 +808,7 @@ Want me to detail any specific exercises or create a weekly schedule? 💪`,
     }
   }
 
-  async selectBestProvider(intent) {
+  async selectBestProvider(intent: string): Promise<ProviderConfig | 'local_fallback'> {
     // Check each provider's availability
     for (const [name, provider] of this.providers) {
       if (this.isProviderAvailable(provider)) {
@@ -736,8 +819,8 @@ Want me to detail any specific exercises or create a weekly schedule? 💪`,
     return 'local_fallback';
   }
 
-  isProviderAvailable(provider) {
-    if (!provider.apiKey || provider.apiKey.includes('your_')) {
+  isProviderAvailable(provider: ProviderConfig): boolean {
+    if (!provider.apiKey || provider.apiKey.includes('your_') || provider.apiKey === '') {
       return false;
     }
     
@@ -753,48 +836,84 @@ Want me to detail any specific exercises or create a weekly schedule? 💪`,
     return provider.currentUsage < (provider.limits.requestsPerDay || 1000);
   }
 
-  createPrompt(intent, message) {
+  createPrompt(intent: MessageAnalysis['intent'], message: string): string {
     const basePrompt = `You are an expert fitness coach with deep knowledge of exercise science, nutrition, and motivation. 
     
 Provide helpful, safe, and evidence-based advice. Keep responses practical and actionable.
     
 User question: ${message}`;
     
-    const intentPrompts = {
+    const intentPrompts: Record<MessageAnalysis['intent'], string> = {
       exercise: basePrompt + '\n\nFocus on exercise technique, programming, and safety.',
       nutrition: basePrompt + '\n\nFocus on nutrition science and practical meal planning.',
       motivation: basePrompt + '\n\nProvide encouraging and motivational guidance.',
-      planning: basePrompt + '\n\nHelp create structured workout plans and routines.'
+      planning: basePrompt + '\n\nHelp create structured workout plans and routines.',
+      safety: basePrompt + '\n\nPrioritize safety and provide immediate guidance.',
+      general: basePrompt + '\n\nProvide comprehensive fitness guidance.'
     };
     
     return intentPrompts[intent] || basePrompt;
   }
 
-  async callAPI(provider, prompt, options = {}) {
+  async callAPI(provider: ProviderConfig, prompt: string, options: any = {}): Promise<{ content: string; provider: string }> {
     try {
       provider.currentUsage++;
       
-      const response = await fetch(provider.baseUrl + '/chat/completions', {
+      // Handle different API formats based on provider
+      let endpoint = '/chat/completions';
+      let requestBody: any = {
+        model: Object.values(provider.models)[0], // Use first available model
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: provider.limits.maxTokens || 1000,
+        temperature: 0.7
+      };
+      
+      // Special handling for Google AI
+      if (provider.name === 'Google AI') {
+        endpoint = `/models/${requestBody.model}:generateContent`;
+        requestBody = {
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            maxOutputTokens: provider.limits.maxTokens || 1000,
+            temperature: 0.7
+          }
+        };
+      }
+      
+      const response = await fetch(provider.baseUrl + endpoint, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${provider.apiKey}`,
-          'Content-Type': 'application/json'
+          'Authorization': provider.name === 'Google AI' 
+            ? '' 
+            : `Bearer ${provider.apiKey}`,
+          'Content-Type': 'application/json',
+          ...(provider.name === 'Google AI' && provider.apiKey && { 'x-goog-api-key': provider.apiKey })
         },
-        body: JSON.stringify({
-          model: Object.values(provider.models)[0], // Use first available model
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: 1000,
-          temperature: 0.7
-        })
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(provider.timeout || 30000)
       });
       
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        throw new Error(`API error: ${response.status} - ${response.statusText}`);
       }
       
       const data = await response.json();
+      
+      // Handle different response formats
+      let content = 'No response received';
+      if (provider.name === 'Google AI') {
+        content = data.candidates?.[0]?.content?.parts?.[0]?.text || content;
+      } else {
+        content = data.choices?.[0]?.message?.content || content;
+      }
+      
+      // Ensure content is always a string
+      const finalContent = typeof content === 'string' ? content : String(content || 'No response received');
+      
       return {
-        content: data.choices[0].message.content,
+        content: finalContent,
         provider: provider.name
       };
       
@@ -808,23 +927,23 @@ User question: ${message}`;
   // 🔄 CACHING SYSTEM
   // =====================================================================================
 
-  getCachedResponse(message) {
+  getCachedResponse(message: string): AIResponse | null {
     const key = this.generateCacheKey(message);
     const cached = this.responseCache.get(key);
     
-    if (cached && Date.now() - cached.timestamp < 60 * 60 * 1000) { // 1 hour cache
+    if (cached && Date.now() - (cached as any).timestamp < 60 * 60 * 1000) { // 1 hour cache
       return cached;
     }
     
     return null;
   }
 
-  cacheResponse(message, response) {
+  cacheResponse(message: string, response: AIResponse): void {
     const key = this.generateCacheKey(message);
     this.responseCache.set(key, {
       ...response,
       timestamp: Date.now()
-    });
+    } as any);
     
     // Cleanup old cache entries
     if (this.responseCache.size > 100) {
@@ -833,7 +952,7 @@ User question: ${message}`;
     }
   }
 
-  generateCacheKey(message) {
+  generateCacheKey(message: string): string {
     return message.toLowerCase().replace(/\s+/g, ' ').trim();
   }
 
@@ -841,7 +960,7 @@ User question: ${message}`;
   // 🛟 FALLBACK RESPONSES
   // =====================================================================================
 
-  getLocalFallbackResponse(message) {
+  getLocalFallbackResponse(message: string): AIResponse {
     return {
       content: `I understand you're asking about fitness, and I want to help! 💪
 
@@ -864,7 +983,7 @@ I'm here to support your fitness journey! 🚀`,
     };
   }
 
-  getFallbackResponse(message, error) {
+  getFallbackResponse(message: string, error: any): AIResponse {
     return {
       content: `I'm having a technical hiccup, but don't worry! 🤖
 
@@ -877,7 +996,7 @@ I can still help you with:
 
 Try rephrasing your question or ask me something specific about fitness. I'm still here to help you crush your goals! 💪
 
-${this.utils.getRandomMotivation()}`,
+${this.utils?.getRandomMotivation() || 'You\'ve got this! 💪'}`,
       source: 'error_fallback',
       confidence: 0.5,
       error: error.message
@@ -885,24 +1004,10 @@ ${this.utils.getRandomMotivation()}`,
   }
 
   // =====================================================================================
-  // 📊 ANALYTICS & UTILITIES
+  // 🌟 GENERAL HANDLER
   // =====================================================================================
 
-  getAnalytics() {
-    return {
-      ...this.analytics,
-      cacheSize: this.responseCache.size,
-      localKnowledgeRate: (this.analytics.localResponses / this.analytics.totalRequests * 100).toFixed(1) + '%',
-      cacheHitRate: (this.analytics.cachedResponses / this.analytics.totalRequests * 100).toFixed(1) + '%'
-    };
-  }
-
-  clearCache() {
-    this.responseCache.clear();
-    console.log('Response cache cleared');
-  }
-
-  handleGeneral(message) {
+  handleGeneral(message: string): AIResponse {
     return {
       content: `Hi there! I'm your AI Fitness Coach! 🤖💪
 
@@ -915,17 +1020,42 @@ I'm here to help you with:
 
 What would you like to know about fitness today?
 
-${this.utils.getRandomMotivation()}`,
+${this.utils?.getRandomMotivation() || 'Let\'s crush your fitness goals together! 💪'}`,
       source: 'general_welcome',
       confidence: 0.7
     };
   }
-}
 
+  // =====================================================================================
+  // 📊 ANALYTICS & UTILITIES
+  // =====================================================================================
+
+  getAnalytics(): {
+    totalRequests: number;
+    localResponses: number;
+    cachedResponses: number;
+    apiResponses: number;
+    errors: number;
+    cacheSize: number;
+    localKnowledgeRate: string;
+    cacheHitRate: string;
+  } {
+    return {
+      ...this.analytics,
+      cacheSize: this.responseCache.size,
+      localKnowledgeRate: (this.analytics.localResponses / this.analytics.totalRequests * 100).toFixed(1) + '%',
+      cacheHitRate: (this.analytics.cachedResponses / this.analytics.totalRequests * 100).toFixed(1) + '%'
+    };
+  }
+
+  clearCache(): void {
+    this.responseCache.clear();
+    console.log('Response cache cleared');
+  }
+}
 
 // =====================================================================================
 // 📤 EXPORT DEFAULT INSTANCE
 // =====================================================================================
 const aiServiceInstance = new AIService();
 export default aiServiceInstance;
-

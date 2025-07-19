@@ -1,12 +1,6 @@
-// =====================================================================================
-// ⚡ VITE CONFIGURATION - AI FITNESS COACH
-// =====================================================================================
-// FILE LOCATION: vite.config.js (root directory)
-// Created by Himanshu (himanshu1614)
-// Fixed ES Module syntax for Vite
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -40,15 +34,26 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
   },
   
-  // Resolve configuration
+  // Resolve configuration with path aliases
   resolve: {
     alias: {
-      '@': '/src'
+      '@': resolve(__dirname, './src'),
+      '@/components': resolve(__dirname, './src/components'),
+      '@/config': resolve(__dirname, './src/config'),
+      '@/utils': resolve(__dirname, './src/utils'),
+      '@/types': resolve(__dirname, './src/types'),
+      '@/security': resolve(__dirname, './src/security')
     }
   },
   
   // Optimizations
   optimizeDeps: {
     include: ['react', 'react-dom', 'lucide-react']
+  },
+  
+  // TypeScript configuration
+  esbuild: {
+    target: 'esnext',
+    platform: 'browser'
   }
 })

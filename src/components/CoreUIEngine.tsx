@@ -20,37 +20,40 @@ const CoreUIEngine = () => {
 
   // UI state
   const [input, setInput] = useState('');
-  const [prediction, setPrediction] = useState(null);
+  const [prediction, setPrediction] = useState<string | null>(null);
   const [userData, setUserData] = useState('');
-  const [learnResult, setLearnResult] = useState(null);
+  const [learnResult, setLearnResult] = useState<string | null>(null);
   const [perfData, setPerfData] = useState('');
-  const [optResult, setOptResult] = useState(null);
+  const [optResult, setOptResult] = useState<string | null>(null);
 
   // Demo handlers
   const handlePredict = () => {
     try {
       const result = engine.predict(input);
-      setPrediction(result);
+      setPrediction(result !== undefined ? String(result) : '');
     } catch (e) {
-      setPrediction('Prediction error: ' + e.message);
+      const msg = e && typeof e === 'object' && 'message' in e ? (e as any).message : String(e);
+      setPrediction('Prediction error: ' + msg);
     }
   };
 
   const handleLearn = () => {
     try {
       const result = learner.learn(userData);
-      setLearnResult(result || 'Learning complete!');
+      setLearnResult(result !== undefined && result !== null ? String(result) : 'Learning complete!');
     } catch (e) {
-      setLearnResult('Learning error: ' + e.message);
+      const msg = e && typeof e === 'object' && 'message' in e ? (e as any).message : String(e);
+      setLearnResult('Learning error: ' + msg);
     }
   };
 
   const handleOptimize = () => {
     try {
       const result = optimizer.optimize(perfData);
-      setOptResult(result || 'Optimization complete!');
+      setOptResult(result !== undefined && result !== null ? String(result) : 'Optimization complete!');
     } catch (e) {
-      setOptResult('Optimization error: ' + e.message);
+      const msg = e && typeof e === 'object' && 'message' in e ? (e as any).message : String(e);
+      setOptResult('Optimization error: ' + msg);
     }
   };
 

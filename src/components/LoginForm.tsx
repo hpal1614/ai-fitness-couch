@@ -1,11 +1,12 @@
+// File: src/components/LoginForm.tsx
+
 // =====================================================================================
 // 🔐 LOGIN FORM - AUTHENTICATION UI COMPONENT
 // =====================================================================================
-// FILE LOCATION: src/components/LoginForm.jsx
 // Created by Himanshu (himanshu1614)
 // Purpose: Beautiful login/register interface with security features
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { 
   Lock, 
   Mail, 
@@ -20,19 +21,136 @@ import {
   LogIn,
   Coffee
 } from 'lucide-react';
-import { useSecurity } from '../security/SecurityProvider.jsx';
+
+// =====================================================================================
+// 🎯 TYPE DEFINITIONS
+// =====================================================================================
+
+export interface LoginFormData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  confirmPassword: string;
+}
+
+export interface FormErrors {
+  email?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  confirmPassword?: string;
+  submit?: string;
+}
+
+export interface PasswordStrength {
+  score: number;
+  checks: {
+    length: boolean;
+    uppercase: boolean;
+    lowercase: boolean;
+    numbers: boolean;
+    special: boolean;
+  };
+  level: 'weak' | 'fair' | 'good' | 'strong';
+  percentage: number;
+}
+
+export interface AuthResult {
+  success: boolean;
+  error?: string;
+  user?: {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}
+
+export interface SecurityContextType {
+  login: (email: string, password: string) => Promise<AuthResult>;
+  register: (data: LoginFormData) => Promise<AuthResult>;
+  loginAsGuest: () => Promise<AuthResult>;
+  isLoading: boolean;
+}
+
+export interface LoginFormProps {
+  onClose?: () => void;
+  defaultTab?: 'login' | 'register';
+}
+
+export type ActiveTab = 'login' | 'register';
+export type InputType = 'text' | 'email' | 'password';
+
+// =====================================================================================
+// 🎯 MOCK SECURITY PROVIDER HOOK
+// =====================================================================================
+
+const useSecurity = (): SecurityContextType => {
+  return {
+    login: async (email: string, password: string): Promise<AuthResult> => {
+      // Mock implementation
+      console.log('Logging in with:', email);
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          if (email === 'demo@aifitnesscoach.com' && password === 'Demo123!') {
+            resolve({
+              success: true,
+              user: { id: '1', email, firstName: 'Demo', lastName: 'User' }
+            });
+          } else {
+            resolve({
+              success: false,
+              error: 'Invalid credentials'
+            });
+          }
+        }, 1000);
+      });
+    },
+    register: async (data: LoginFormData): Promise<AuthResult> => {
+      // Mock implementation
+      console.log('Registering user:', data);
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            success: true,
+            user: { 
+              id: '2', 
+              email: data.email, 
+              firstName: data.firstName, 
+              lastName: data.lastName 
+            }
+          });
+        }, 1500);
+      });
+    },
+    loginAsGuest: async (): Promise<AuthResult> => {
+      // Mock implementation
+      console.log('Logging in as guest');
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            success: true,
+            user: { id: 'guest', email: 'guest@aifitnesscoach.com', firstName: 'Guest' }
+          });
+        }, 500);
+      });
+    },
+    isLoading: false
+  };
+};
 
 // =====================================================================================
 // 🎨 LOGIN FORM COMPONENT
 // =====================================================================================
 
-const LoginForm = ({ onClose, defaultTab = 'login' }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onClose, defaultTab = 'login' }) => {
   const { login, register, loginAsGuest, isLoading } = useSecurity();
   
   // Form state
-  const [activeTab, setActiveTab] = useState(defaultTab);
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
+  const [activeTab, setActiveTab] = useState<ActiveTab>(defaultTab);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
     firstName: '',
@@ -41,21 +159,21 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
   });
   
   // UI state
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(null);
-  const [showDemo, setShowDemo] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null);
+  const [showDemo, setShowDemo] = useState<boolean>(false);
 
   // =====================================================================================
   // 🔄 FORM HANDLERS
   // =====================================================================================
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof LoginFormData, value: string): void => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error for this field
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: null }));
+      setErrors(prev => ({ ...prev, [field]: undefined }));
     }
     
     // Check password strength on password change
@@ -64,7 +182,7 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     }
   };
 
-  const checkPasswordStrength = (password) => {
+  const checkPasswordStrength = (password: string): void => {
     if (!password) {
       setPasswordStrength(null);
       return;
@@ -81,7 +199,7 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
 
     score = Object.values(checks).filter(Boolean).length;
     
-    const strength = {
+    const strength: PasswordStrength = {
       score,
       checks,
       level: score < 2 ? 'weak' : score < 4 ? 'fair' : score < 5 ? 'good' : 'strong',
@@ -91,8 +209,8 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     setPasswordStrength(strength);
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
 
     // Email validation
     if (!formData.email) {
@@ -128,7 +246,7 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -136,7 +254,7 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     setIsSubmitting(true);
     
     try {
-      let result;
+      let result: AuthResult;
       
       if (activeTab === 'login') {
         result = await login(formData.email, formData.password);
@@ -145,7 +263,7 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
       }
       
       if (result.success) {
-        onClose && onClose();
+        onClose?.();
       } else {
         setErrors({ submit: result.error });
       }
@@ -156,12 +274,12 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     }
   };
 
-  const handleGuestLogin = async () => {
+  const handleGuestLogin = async (): Promise<void> => {
     setIsSubmitting(true);
     try {
       const result = await loginAsGuest();
       if (result.success) {
-        onClose && onClose();
+        onClose?.();
       } else {
         setErrors({ submit: result.error });
       }
@@ -172,7 +290,7 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     }
   };
 
-  const fillDemoCredentials = () => {
+  const fillDemoCredentials = (): void => {
     setFormData(prev => ({
       ...prev,
       email: 'demo@aifitnesscoach.com',
@@ -185,8 +303,9 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
   // 🎨 RENDER COMPONENTS
   // =====================================================================================
 
-  const renderTabButton = (tab, label, icon) => (
+  const renderTabButton = (tab: ActiveTab, label: string, icon: ReactNode): ReactNode => (
     <button
+      key={tab}
       type="button"
       onClick={() => setActiveTab(tab)}
       className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-colors ${
@@ -202,10 +321,10 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     </button>
   );
 
-  const renderPasswordStrength = () => {
+  const renderPasswordStrength = (): ReactNode => {
     if (!passwordStrength || activeTab !== 'register') return null;
 
-    const colors = {
+    const colors: Record<PasswordStrength['level'], string> = {
       weak: 'bg-red-500',
       fair: 'bg-yellow-500',
       good: 'bg-blue-500',
@@ -259,7 +378,13 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     );
   };
 
-  const renderInputField = (field, label, type = 'text', icon = null, placeholder = '') => (
+  const renderInputField = (
+    field: keyof LoginFormData, 
+    label: string, 
+    type: InputType = 'text', 
+    icon: ReactNode = null, 
+    placeholder: string = ''
+  ): ReactNode => (
     <div className="mb-4">
       <label className="block text-gray-700 mb-2">
         {label}
@@ -332,12 +457,14 @@ const LoginForm = ({ onClose, defaultTab = 'login' }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 relative">
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        >
-          ✕
-        </button>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        )}
 
         {/* Header */}
         <div className="text-center mb-6">
