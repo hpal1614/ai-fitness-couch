@@ -27,6 +27,7 @@ import {
   Globe,
   Smartphone
 } from 'lucide-react';
+import BuyMeCoffeeWidget from '../ui/BuyMeCoffeeWidget';
 
 // =====================================================================================
 // 🎯 TYPE DEFINITIONS
@@ -605,6 +606,13 @@ const SecurityDashboard: React.FC<SecurityDashboardProps> = ({ isOpen, onClose }
             Sign Out
           </button>
         </div>
+      </div>
+
+      {/* Support/Donation Section */}
+      <div className="bg-white rounded-xl p-6 border border-gray-200 flex flex-col items-center">
+        <h3 className="text-lg font-bold text-gray-800 mb-4">Support & Donations</h3>
+        <p className="text-gray-600 mb-4 text-center">If you enjoy using VoiceFit, consider supporting development by buying me a coffee!</p>
+        <BuyMeCoffeeWidget />
       </div>
     </div>
   );

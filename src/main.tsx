@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { initVoiceEngine } from './voice/VoiceEngine';
+import { registerServiceWorker } from './pwa/registerServiceWorker';
 
 // Error boundary component
 class ErrorBoundary extends React.Component<
@@ -57,3 +59,6 @@ root.render(
     </ErrorBoundary>
   </React.StrictMode>
 );
+
+initVoiceEngine();
+registerServiceWorker();

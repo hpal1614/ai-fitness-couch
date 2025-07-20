@@ -1,14 +1,18 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tsconfigPaths from 'vite-tsconfig-paths'
-import { resolve } from 'path'
+// Migrate to ESM for Vite 5+
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
   plugins: [
     react(),
-    tsconfigPaths() // This enables TypeScript path mapping
+    tsconfigPaths()
   ],
-  
   server: {
     port: 3001,
     open: true,
@@ -16,7 +20,6 @@ export default defineConfig({
     strictPort: false,
     cors: true
   },
-  
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -33,12 +36,10 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000
   },
-  
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
     'global': 'globalThis',
   },
-  
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
@@ -49,11 +50,10 @@ export default defineConfig({
       '@/security': resolve(__dirname, './src/security')
     }
   },
-  
   optimizeDeps: {
     include: ['react', 'react-dom', 'lucide-react'],
     esbuildOptions: {
       target: 'es2015'
     }
   }
-})
+});

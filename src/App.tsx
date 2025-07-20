@@ -1,16 +1,19 @@
 import React from 'react';
 import { SecurityProvider } from '@/security/SecurityProvider';
-import FitnessCoach from '@/components/FitnessCoach'; // ✅ Fixed: Capital F and C
+import FitnessCoach from '@/components/FitnessCouch'; // Match the filename exactly (case-sensitive!)
+import { VoiceStatusProvider } from './voice/VoiceEngine';
 
 import './index.css';
 
 function App(): React.ReactElement {
   return (
-    <SecurityProvider>
-      <div className="App">
-        <FitnessCoach />
-      </div>
-    </SecurityProvider>
+    <VoiceStatusProvider>
+      <SecurityProvider>
+        <div className="App">
+          <FitnessCoach />
+        </div>
+      </SecurityProvider>
+    </VoiceStatusProvider>
   );
 }
 
