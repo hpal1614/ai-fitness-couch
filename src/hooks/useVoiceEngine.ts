@@ -1,5 +1,10 @@
 import { useState, useRef, useCallback } from 'react';
 
+// @ts-ignore
+type SpeechRecognition = any;
+// @ts-ignore
+type SpeechRecognitionEvent = any;
+
 export function useVoiceEngine({ onResult, enabled }: { onResult: (text: string) => void, enabled: boolean }) {
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(false);
