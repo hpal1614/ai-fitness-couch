@@ -1,4 +1,7 @@
 {
+  "name": "voicefit",
+  "version": "1.0.0",
+  "description": "Voice-first AI fitness tracking PWA with battle-tested open source libraries",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -9,6 +12,8 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@google/generative-ai": "^0.21.0",
+    "@mediapipe/camera_utils": "^0.3.1640029074",
     "@mediapipe/pose": "^0.5.1675469404",
     "@mui/icons-material": "^7.2.0",
     "@mui/lab": "^7.0.0-beta.14",
@@ -23,18 +28,33 @@
     "annyang": "^2.6.1",
     "cors": "^2.8.5",
     "dexie": "^4.0.11",
+    "fuse.js": "^7.0.0",
     "groq-sdk": "^0.27.0",
     "helmet": "^8.1.0",
     "lucide-react": "^0.525.0",
+    "pouchdb": "^8.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "recharts": "^3.1.0",
+    "rxdb": "^15.34.1",
     "workbox-window": "^7.3.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/annyang": "^2.6.4",
+    "@types/pouchdb": "^6.4.2",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.21",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
+    "typescript": "^5.2.2",
     "vite": "^4.5.14",
+    "vite-plugin-pwa": "^1.0.1",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }
