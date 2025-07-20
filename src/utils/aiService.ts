@@ -36,6 +36,18 @@ export interface Analytics {
   userSatisfactionScore: number;
 }
 
+export async function askCoachFlex(userInput: string): Promise<string> {
+  // Inject persona
+  const personaPrompt = `You are Coach Flex, a funny, respectful, fitness-focused AI coach. Stay in character.\nUser: ${userInput}\nCoach Flex:`;
+  // TODO: Replace with real AI API call
+  // For now, return a mock response
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve("Let's get those gains! 💪 (This is a mock response from Coach Flex.)");
+    }, 1000);
+  });
+}
+
 class AIService {
   private localKnowledge: LocalKnowledge;
   private cache: Map<string, AIResponse>;
