@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import annyang from 'annyang';
+import * as annyang from 'annyang';
 
 // Command handler stubs (to be implemented elsewhere and imported)
 const logExercise = (...args: any[]) => {};
@@ -74,13 +74,13 @@ export function VoiceStatusProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (annyang) {
       isAnnyangAvailable = true;
-      annyang.addCommands(VoiceCommands);
-      annyang.addCallback('soundstart', () => setListening(true));
-      annyang.addCallback('end', () => setListening(false));
-      annyang.addCallback('result', (phrases: string[]) => {
+      (annyang as any).addCommands(VoiceCommands);
+      (annyang as any).addCallback('soundstart', () => setListening(true));
+      (annyang as any).addCallback('end', () => setListening(false));
+      (annyang as any).addCallback('result', (phrases: string[]) => {
         setTranscript(phrases[0] || '');
       });
-      annyang.start({ autoRestart: true, continuous: true });
+      (annyang as any).start({ autoRestart: true, continuous: true });
     } else if ('webkitSpeechRecognition' in window) {
       const recognition = new (window as any).webkitSpeechRecognition();
       recognition.continuous = true;
@@ -112,8 +112,8 @@ export function useVoiceStatus() {
 export function initVoiceEngine() {
   if (annyang) {
     isAnnyangAvailable = true;
-    annyang.addCommands(VoiceCommands);
-    annyang.start({ autoRestart: true, continuous: true });
+    (annyang as any).addCommands(VoiceCommands);
+    (annyang as any).start({ autoRestart: true, continuous: true });
     console.log('Annyang voice engine started.');
   } else if ('webkitSpeechRecognition' in window) {
     // Fallback: Web Speech API (basic)
@@ -135,7 +135,7 @@ export function initVoiceEngine() {
 
 export function stopVoiceEngine() {
   if (isAnnyangAvailable && annyang) {
-    annyang.abort();
+    (annyang as any).abort();
   }
   // TODO: Stop Web Speech API if used
 }
