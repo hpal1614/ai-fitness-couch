@@ -1,18 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Custom component classes */
-@layer components {
-  .btn {
-    @apply px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200;
-  }
-  
-  .card {
-    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200;
-  }
-}
-
 /* ===================================================================================== */
 /* 🎯 ROOT VARIABLES */
 /* ===================================================================================== */
@@ -46,6 +31,8 @@
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
@@ -426,7 +413,8 @@ button:focus {
 
 /* Optimize image loading */
 img {
-  @apply max-w-full h-auto;
+  max-width: 100%;
+  height: auto;
 }
 
 /* Optimize font loading */

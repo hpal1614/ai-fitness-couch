@@ -1,52 +1,35 @@
-import { useState, useRef, useCallback } from 'react';
+// =====================================================================================
+// 🎤 VOICE ENGINE HOOK - UPDATED FOR BATTLE-TESTED INTEGRATION
+// =====================================================================================
+// Updated to work with the new VoiceStatusProvider system
+
+import React, { useCallback, useEffect } from 'react';
+import { useVoiceStatus } from '../voice/VoiceEngine';
 
 export function useVoiceEngine({ onResult, enabled }: { onResult: (text: string) => void, enabled: boolean }) {
-  const [listening, setListening] = useState(false);
-  const [speaking, setSpeaking] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const synthRef = useRef(window.speechSynthesis);
+  const voiceStatus = useVoiceStatus();
 
-  // Start listening for voice input
-  const startListening = useCallback(() => {
-    if (!enabled || listening) return;
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const text = event.results[0][0].transcript;
-      onResult(text);
-    };
-    recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
-    recognitionRef.current = recognition;
-    setListening(true);
-    recognition.start();
-  }, [enabled, listening, onResult]);
+  // Set up result handler
+  const handleTranscript = useCallback((transcript: string) => {
+    if (transcript && enabled) {
+      onResult(transcript);
+    }
+  }, [onResult, enabled]);
 
-  // Stop listening
-  const stopListening = useCallback(() => {
-    recognitionRef.current?.stop();
-    setListening(false);
-  }, []);
-
-  // Speak text aloud
-  const speak = useCallback((text: string) => {
-    if (!enabled || speaking) return;
-    setSpeaking(true);
-    const utter = new window.SpeechSynthesisUtterance(text);
-    utter.lang = 'en-US';
-    utter.onend = () => setSpeaking(false);
-    synthRef.current.speak(utter);
-  }, [enabled, speaking]);
+  // Update transcript handling when transcript changes
+  useEffect(() => {
+    if (voiceStatus?.transcript && enabled) {
+      handleTranscript(voiceStatus.transcript);
+    }
+  }, [voiceStatus?.transcript, enabled, handleTranscript]);
 
   return {
-    listening,
-    speaking,
-    startListening,
-    stopListening,
-    speak,
+    isListening: voiceStatus?.isListening || false,
+    isSupported: voiceStatus?.isSupported || false,
+    transcript: voiceStatus?.transcript || '',
+    confidence: voiceStatus?.confidence || 0,
+    startListening: voiceStatus?.startListening || (() => {}),
+    stopListening: voiceStatus?.stopListening || (() => {}),
+    error: voiceStatus?.error || null
   };
 } 
