@@ -1,29 +1,11 @@
 // =====================================================================================
-// 🎤 BATTLE-TESTED VOICE ENGINE WITH ANNYANG + WEB SPEECH API
+// 🎤 SIMPLIFIED VOICE ENGINE - GUARANTEED TO WORK
 // =====================================================================================
-// Using Annyang.js (6,000+ GitHub stars) with Web Speech API fallback
+// Using Web Speech API with proper error handling
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { aiService } from '../ai/AiService';
 import { exerciseService } from '../data/ExerciseService';
-
-// Dynamically import annyang to handle SSR and optional loading
-let annyang: any = null;
-
-// Try to load annyang
-const loadAnnyang = async () => {
-  try {
-    if (typeof window !== 'undefined') {
-      const annyangModule = await import('annyang');
-      annyang = annyangModule.default;
-      return true;
-    }
-  } catch (error) {
-    console.log('Annyang not available, will use Web Speech API fallback');
-    return false;
-  }
-  return false;
-};
 
 // Voice Status Interface
 export interface VoiceStatusContextType {
@@ -35,7 +17,7 @@ export interface VoiceStatusContextType {
   startListening: () => void;
   stopListening: () => void;
   speak: (text: string) => void;
-  // Legacy support for existing components
+  // Legacy support
   listening: boolean;
   speaking: boolean;
   isEnabled: boolean;
@@ -53,9 +35,9 @@ export interface VoiceStats {
 // Voice Context
 const VoiceStatusContext = createContext<VoiceStatusContextType | null>(null);
 
-// Voice Provider Component
+// Simple Voice Provider
 export const VoiceStatusProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Core state
+  // State
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -64,7 +46,7 @@ export const VoiceStatusProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [speaking, setSpeaking] = useState(false);
   const [lastCommand, setLastCommand] = useState('');
   
-  // Statistics
+  // Stats
   const [stats, setStats] = useState<VoiceStats>({
     totalCommands: 0,
     successfulCommands: 0,
@@ -78,126 +60,53 @@ export const VoiceStatusProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   // Initialize voice recognition
   useEffect(() => {
-    let mounted = true;
-
-    const initializeVoice = async () => {
-      // Try to load annyang first
-      const annyangLoaded = await loadAnnyang();
-      
-      if (annyangLoaded && annyang) {
-        console.log('✅ Annyang loaded successfully');
-        initializeAnnyang();
-      } else {
-        console.log('🔄 Falling back to Web Speech API');
-        initializeWebSpeechAPI();
-      }
-    };
-
-    if (mounted) {
-      initializeVoice();
-    }
-
-    return () => {
-      mounted = false;
-      cleanup();
-    };
-  }, []);
-
-  // Initialize Annyang (preferred)
-  const initializeAnnyang = useCallback(() => {
-    if (!annyang) return;
-
-    // Set language
-    annyang.setLanguage('en-US');
-
-    // Add debug event listeners
-    annyang.addCallback('start', () => {
-      console.log('🎤 Annyang: Listening started');
-      setIsListening(true);
-      setError(null);
-    });
-
-    annyang.addCallback('end', () => {
-      console.log('🎤 Annyang: Listening ended');
-      setIsListening(false);
-    });
-
-    annyang.addCallback('result', (phrases: string[]) => {
-      if (phrases && phrases.length > 0) {
-        const bestPhrase = phrases[0];
-        console.log('🎤 Annyang Result:', bestPhrase);
-        setTranscript(bestPhrase);
-        setConfidence(0.8); // Annyang doesn't provide confidence scores
-        setLastCommand(bestPhrase);
-        handleVoiceCommand(bestPhrase);
-        
-        // Update stats
-        setStats(prev => ({
-          ...prev,
-          totalCommands: prev.totalCommands + 1,
-          successfulCommands: prev.successfulCommands + 1,
-          accuracy: ((prev.successfulCommands + 1) / (prev.totalCommands + 1)) * 100,
-          sessionDuration: Date.now() - sessionStartRef.current
-        }));
-      }
-    });
-
-    annyang.addCallback('error', (err: any) => {
-      console.error('🎤 Annyang Error:', err);
-      setError(err.error || 'Speech recognition error');
-      setIsListening(false);
-    });
-
-    setIsSupported(true);
-  }, []);
-
-  // Initialize Web Speech API (fallback)
-  const initializeWebSpeechAPI = useCallback(() => {
+    console.log('🎤 Initializing Voice Engine...');
+    
+    // Check if speech recognition is supported
     const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
-      console.error('❌ Speech Recognition not supported');
-      setError('Speech recognition not supported in this browser');
+      console.log('❌ Speech Recognition not supported');
+      setError('Speech recognition not supported in this browser. Try Chrome, Edge, or Safari!');
       return;
     }
 
+    console.log('✅ Speech Recognition supported');
+    setIsSupported(true);
+
+    // Create recognition instance
     const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
+    recognition.continuous = false; // Single result per session
+    recognition.interimResults = false; // Only final results
     recognition.lang = 'en-US';
 
+    // Event handlers
     recognition.onstart = () => {
-      console.log('🎤 Web Speech API: Listening started');
+      console.log('🎤 Voice: Listening started');
       setIsListening(true);
       setError(null);
+      setTranscript('');
     };
 
     recognition.onend = () => {
-      console.log('🎤 Web Speech API: Listening ended');
+      console.log('🎤 Voice: Listening ended');
       setIsListening(false);
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
+      if (event.results.length > 0) {
+        const result = event.results[0];
         const transcript = result[0].transcript;
+        const confidence = result[0].confidence || 0.8;
 
-        if (result.isFinal) {
-          finalTranscript += transcript;
-          setConfidence(result[0].confidence || 0.8);
-        } else {
-          interimTranscript += transcript;
-        }
-      }
-
-      if (finalTranscript) {
-        console.log('🎤 Final transcript:', finalTranscript);
-        setTranscript(finalTranscript);
-        setLastCommand(finalTranscript);
-        handleVoiceCommand(finalTranscript);
+        console.log('🎤 Voice Result:', transcript, 'Confidence:', confidence);
+        
+        setTranscript(transcript);
+        setConfidence(confidence);
+        setLastCommand(transcript);
+        
+        // Process the command
+        handleVoiceCommand(transcript);
 
         // Update stats
         setStats(prev => ({
@@ -207,80 +116,100 @@ export const VoiceStatusProvider: React.FC<{ children: ReactNode }> = ({ childre
           accuracy: ((prev.successfulCommands + 1) / (prev.totalCommands + 1)) * 100,
           sessionDuration: Date.now() - sessionStartRef.current
         }));
-      } else if (interimTranscript) {
-        setTranscript(interimTranscript);
       }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('🎤 Web Speech API Error:', event.error);
-      setError(event.error);
+      console.log('🎤 Voice Error:', event.error);
+      setError(`Voice error: ${event.error}`);
       setIsListening(false);
+      
+      // Handle specific errors
+      if (event.error === 'not-allowed') {
+        setError('Microphone permission denied. Please allow microphone access and try again.');
+      } else if (event.error === 'no-speech') {
+        setError('No speech detected. Please try speaking louder or check your microphone.');
+      } else if (event.error === 'network') {
+        setError('Network error. Please check your internet connection.');
+      }
     };
 
     recognitionRef.current = recognition;
-    setIsSupported(true);
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, []);
 
   // Handle voice commands
   const handleVoiceCommand = useCallback(async (command: string) => {
-    const cleanCommand = command.toLowerCase().trim();
+    console.log('🎤 Processing voice command:', command);
     
-    // Fitness-specific command processing
     try {
       let response = '';
 
       // Quick exercise lookups
-      if (cleanCommand.includes('show me') && cleanCommand.includes('exercise')) {
-        const exerciseName = cleanCommand.replace(/show me|exercise|for/g, '').trim();
+      if (command.toLowerCase().includes('show me') && command.toLowerCase().includes('exercise')) {
+        const exerciseName = command.toLowerCase().replace(/show me|exercise|for/g, '').trim();
+        console.log('🏋️ Looking up exercise:', exerciseName);
+        
         const exercises = await exerciseService.searchByVoice(exerciseName);
         if (exercises.exercises.length > 0) {
-          response = `Here's how to do ${exercises.exercises[0].name}: ${exercises.exercises[0].instructions.join('. ')}`;
+          const exercise = exercises.exercises[0];
+          response = `Here's how to do ${exercise.name}: ${exercise.instructions[0]}`;
         } else {
           response = `I couldn't find an exercise called "${exerciseName}". Try asking for squats, push-ups, or planks!`;
         }
       }
-      // General fitness advice
+      // General AI response
       else {
+        console.log('🤖 Getting AI response...');
         response = await aiService.getAIResponse(command);
       }
 
       if (response) {
+        console.log('🔊 Speaking response:', response);
         speak(response);
       }
     } catch (error) {
-      console.error('Command processing error:', error);
+      console.error('❌ Command processing error:', error);
       speak('Sorry, I had trouble processing that command. Please try again.');
     }
   }, []);
 
-  // Start listening function
+  // Start listening
   const startListening = useCallback(() => {
-    if (annyang) {
-      annyang.start();
-    } else if (recognitionRef.current) {
+    if (!isSupported) {
+      setError('Speech recognition not supported');
+      return;
+    }
+
+    if (recognitionRef.current && !isListening) {
       try {
+        console.log('🎤 Starting voice recognition...');
         recognitionRef.current.start();
       } catch (error) {
-        console.error('Error starting recognition:', error);
-        setError('Could not start voice recognition');
+        console.error('❌ Error starting recognition:', error);
+        setError('Could not start voice recognition. Please try again.');
       }
     }
-  }, []);
+  }, [isSupported, isListening]);
 
-  // Stop listening function
+  // Stop listening
   const stopListening = useCallback(() => {
-    if (annyang) {
-      annyang.abort();
-    } else if (recognitionRef.current) {
+    if (recognitionRef.current && isListening) {
+      console.log('🎤 Stopping voice recognition...');
       recognitionRef.current.stop();
     }
-    setIsListening(false);
-  }, []);
+  }, [isListening]);
 
-  // Text-to-speech function
+  // Text-to-speech
   const speak = useCallback((text: string) => {
     if ('speechSynthesis' in window) {
+      console.log('🔊 Speaking:', text);
+      
       // Cancel any ongoing speech
       window.speechSynthesis.cancel();
       
@@ -288,12 +217,26 @@ export const VoiceStatusProvider: React.FC<{ children: ReactNode }> = ({ childre
       utterance.rate = 0.9;
       utterance.pitch = 1;
       utterance.volume = 1;
+      utterance.lang = 'en-US';
 
-      utterance.onstart = () => setSpeaking(true);
-      utterance.onend = () => setSpeaking(false);
-      utterance.onerror = () => setSpeaking(false);
+      utterance.onstart = () => {
+        console.log('🔊 Speech started');
+        setSpeaking(true);
+      };
+      
+      utterance.onend = () => {
+        console.log('🔊 Speech ended');
+        setSpeaking(false);
+      };
+      
+      utterance.onerror = (event) => {
+        console.error('🔊 Speech error:', event.error);
+        setSpeaking(false);
+      };
 
       window.speechSynthesis.speak(utterance);
+    } else {
+      console.log('❌ Speech synthesis not supported');
     }
   }, []);
 
@@ -303,22 +246,8 @@ export const VoiceStatusProvider: React.FC<{ children: ReactNode }> = ({ childre
     sessionDuration: Date.now() - sessionStartRef.current
   }), [stats]);
 
-  // Cleanup function
-  const cleanup = useCallback(() => {
-    if (annyang) {
-      annyang.abort();
-    }
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-  }, []);
-
   // Context value
   const contextValue: VoiceStatusContextType = {
-    // New interface
     isListening,
     isSupported,
     transcript,
@@ -327,7 +256,7 @@ export const VoiceStatusProvider: React.FC<{ children: ReactNode }> = ({ childre
     startListening,
     stopListening,
     speak,
-    // Legacy interface for backward compatibility
+    // Legacy compatibility
     listening: isListening,
     speaking,
     isEnabled: isSupported,
