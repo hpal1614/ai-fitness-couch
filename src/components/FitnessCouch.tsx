@@ -55,6 +55,7 @@ const FitnessCoach: React.FC = () => {
   
   const [inputText, setInputText] = useState('');
   const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [aiStatus, setAiStatus] = useState<'idle' | 'active' | 'error'>('idle');
   
   // Hooks
   const voiceStatus = useVoiceStatus();
@@ -132,8 +133,14 @@ What's your fitness goal today? Let's make it happen! 🔥`,
     setInputText('');
 
     try {
+      // Set AI status to active
+      setAiStatus('active');
+      
       // Get AI response
       const aiResponse = await askCoachFlex(content);
+      
+      // Set AI status to idle (success)
+      setAiStatus('idle');
       
       // Check for achievements
       checkForAchievements(content, aiResponse);
@@ -161,6 +168,12 @@ What's your fitness goal today? Let's make it happen! 🔥`,
 
     } catch (error) {
       console.error('Chat error:', error);
+      
+      // Set AI status to error
+      setAiStatus('error');
+      
+      // Reset to idle after 3 seconds
+      setTimeout(() => setAiStatus('idle'), 3000);
       
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
@@ -241,18 +254,43 @@ What's your fitness goal today? Let's make it happen! 🔥`,
             </div>
           </div>
           
-          {/* Session Stats */}
-          <div className="hidden md:flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-1">
+          {/* Session Stats & Status Indicators */}
+          <div className="flex items-center gap-4 text-sm">
+            {/* AI Status Indicator */}
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full flex items-center justify-center ${
+                aiStatus === 'active' 
+                  ? 'bg-blue-500 animate-pulse' 
+                  : aiStatus === 'error' 
+                  ? 'bg-red-500' 
+                  : 'bg-green-500'
+              }`}>
+                {aiStatus === 'active' && (
+                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping"></div>
+                )}
+              </div>
+              <span className="hidden sm:inline">
+                AI {aiStatus === 'active' ? 'Thinking...' : aiStatus === 'error' ? 'Error' : 'Ready'}
+              </span>
+            </div>
+
+            {/* Voice Status Indicator */}
+            {voiceStatus.isSupported && (
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${
+                  voiceStatus.isListening ? 'bg-red-500 animate-pulse' : 'bg-green-500'
+                }`}></div>
+                <span className="hidden md:inline">
+                  {voiceStatus.isListening ? 'Listening...' : 'Voice Ready'}
+                </span>
+              </div>
+            )}
+
+            {/* Message Count (hidden on small screens) */}
+            <div className="hidden md:flex items-center gap-1">
               <Target className="w-4 h-4" />
               <span>{chatState.sessionStats.messagesCount} messages</span>
             </div>
-            {voiceStatus.isSupported && (
-              <div className={`flex items-center gap-1 ${voiceStatus.isListening ? 'animate-pulse' : ''}`}>
-                <Mic className="w-4 h-4" />
-                <span>{voiceStatus.isListening ? 'Listening...' : 'Voice Ready'}</span>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -318,6 +356,28 @@ What's your fitness goal today? Let's make it happen! 🔥`,
 
       {/* Input Area */}
       <div className="bg-white border-t border-gray-200 p-4">
+        {/* Mobile Status Bar */}
+        <div className="sm:hidden flex items-center justify-center gap-4 mb-3 text-xs">
+          <div className="flex items-center gap-1">
+            <div className={`w-2 h-2 rounded-full ${
+              aiStatus === 'active' 
+                ? 'bg-blue-500 animate-pulse' 
+                : aiStatus === 'error' 
+                ? 'bg-red-500' 
+                : 'bg-green-500'
+            }`}></div>
+            <span>AI {aiStatus === 'active' ? 'Thinking' : aiStatus === 'error' ? 'Error' : 'Ready'}</span>
+          </div>
+          {voiceStatus.isSupported && (
+            <div className="flex items-center gap-1">
+              <div className={`w-2 h-2 rounded-full ${
+                voiceStatus.isListening ? 'bg-red-500 animate-pulse' : 'bg-green-500'
+              }`}></div>
+              <span>Voice {voiceStatus.isListening ? 'Active' : 'Ready'}</span>
+            </div>
+          )}
+        </div>
+        
         <div className="flex gap-2">
           <div className="flex-1 relative">
             <input
@@ -365,11 +425,21 @@ What's your fitness goal today? Let's make it happen! 🔥`,
           {/* Send Button */}
           <button
             onClick={() => handleSendMessage()}
-            disabled={!inputText.trim() || chatState.isTyping}
-            className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={!inputText.trim() || chatState.isTyping || aiStatus === 'active'}
+            className={`p-3 rounded-lg transition-colors ${
+              aiStatus === 'active' 
+                ? 'bg-blue-500 text-white' 
+                : aiStatus === 'error'
+                ? 'bg-red-500 text-white'
+                : 'bg-orange-500 text-white hover:bg-orange-600'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
             title="Send message"
           >
-            {chatState.isTyping ? <Loader className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            {aiStatus === 'active' ? (
+              <Loader className="w-5 h-5 animate-spin" />
+            ) : (
+              <Send className="w-5 h-5" />
+            )}
           </button>
         </div>
 
